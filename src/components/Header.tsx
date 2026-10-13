@@ -7,7 +7,7 @@ export default function Header() {
           <img
             src="/logo/khu.svg"
             alt="경희대학교 휘장"
-            className="h-[40px] w-auto shrink-0"
+            className="size-[40px] shrink-0 object-contain"
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo/kiiid.svg" alt="KHID" className="h-[18px] w-auto" />
