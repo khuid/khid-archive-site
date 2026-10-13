@@ -29,10 +29,16 @@ export function getExhibitions(): Exhibition[] {
     .map((entry) => entry.name)
     .sort((a, b) => Number(b) - Number(a)); // newest first
 
-  const fileIfExists = (dir: string, year: string, filename: string) =>
-    fs.existsSync(path.join(dir, filename))
-      ? `/exhibitions/${year}/${filename}`
-      : undefined;
+  // 담당자가 jpg/png 어느 쪽으로 올려도 인식하도록 확장자 여러 개를 순서대로 확인
+  const firstExisting = (dir: string, year: string, baseName: string, exts: string[]) => {
+    for (const ext of exts) {
+      const filename = `${baseName}.${ext}`;
+      if (fs.existsSync(path.join(dir, filename))) {
+        return `/exhibitions/${year}/${filename}`;
+      }
+    }
+    return undefined;
+  };
 
   return years.map((year) => {
     const dir = path.join(EXHIBITIONS_DIR, year);
@@ -47,9 +53,9 @@ export function getExhibitions(): Exhibition[] {
       titleEn: info.titleEn ?? "",
       openingDate: info.openingDate ?? "",
       venue: info.venue ?? "",
-      posterSrc: fileIfExists(dir, year, "poster.jpg"),
-      invitationSrc: fileIfExists(dir, year, "invitation.jpg"),
-      movingPosterSrc: fileIfExists(dir, year, "moving-poster.mp4"),
+      posterSrc: firstExisting(dir, year, "poster", ["jpg", "jpeg", "png"]),
+      invitationSrc: firstExisting(dir, year, "invitation", ["jpg", "jpeg", "png"]),
+      movingPosterSrc: firstExisting(dir, year, "moving-poster", ["mp4"]),
       href: `https://khid.archive.khu.ac.kr/${year}`,
     };
   });
