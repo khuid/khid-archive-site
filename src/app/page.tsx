@@ -12,9 +12,7 @@ export default function Home() {
       <Header />
       <main>
         <Phase1Hero exhibitions={exhibitions} />
-        <hr className="border-t border-foreground/20" />
         <Phase2Timeline exhibitions={exhibitions} />
-        <hr className="border-t border-foreground/20" />
         <Phase3Grid exhibitions={exhibitions} />
       </main>
     </>

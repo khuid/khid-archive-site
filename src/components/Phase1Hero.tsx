@@ -19,7 +19,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
 
   return (
     <section className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 md:flex-row md:items-center md:gap-16 md:px-12 lg:px-[93px]">
-      <div className="relative aspect-square w-full max-w-[280px] shrink-0 sm:max-w-[360px] lg:max-w-[560px] min-[1920px]:max-w-[680px]">
+      <div className="relative aspect-square w-full max-w-[280px] shrink-0 min-[640px]:max-w-[360px] min-[1024px]:max-w-[560px] min-[1920px]:max-w-[680px]">
         {stack.map((ex, i) => {
           const isLatest = i === stack.length - 1;
           const depth = stack.length - 1 - i; // 0 = 최신(맨 위), 커질수록 더 아래/오래된 카드

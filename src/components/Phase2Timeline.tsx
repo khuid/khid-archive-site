@@ -31,7 +31,8 @@ export default function Phase2Timeline({ exhibitions }: Props) {
 
   return (
     <section className="flex flex-col items-center gap-10 px-6 py-24 md:flex-row md:items-center md:justify-center md:gap-20 md:px-12 lg:px-[93px]">
-      <div className="relative aspect-square w-full max-w-[280px] shrink-0 overflow-hidden rounded-sm bg-foreground/5 sm:max-w-[360px] lg:max-w-[467px] min-[1920px]:max-w-[514px]">
+      {/* Figma 실측: 467x660(1440), 513.7x725.2(1920), 317.3x448(모바일) — 전부 467:660 비율 */}
+      <div className="relative aspect-[467/660] w-[317px] shrink-0 overflow-hidden rounded-sm bg-foreground/5 min-[768px]:w-[390px] min-[1440px]:w-[467px] min-[1920px]:w-[514px]">
         {selected?.movingPosterSrc ? (
           <video
             key={selected.movingPosterSrc}
