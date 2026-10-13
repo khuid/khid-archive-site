@@ -30,7 +30,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
           return (
             <div
               key={ex.year}
-              className="absolute inset-0 origin-center animate-[stack-in_0.6s_ease-out_both] rounded-sm shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
+              className="absolute inset-0 origin-center animate-[stack-in_0.6s_ease-out_both] shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
               style={{
                 zIndex: i,
                 transform: `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg) scale(${scale})`,
@@ -43,11 +43,11 @@ export default function Phase1Hero({ exhibitions }: Props) {
                   alt={`${ex.year} ${ex.titleKo} 초대장`}
                   fill
                   sizes="(min-width: 1920px) 680px, (min-width: 1024px) 560px, (min-width: 640px) 360px, 280px"
-                  className="object-cover rounded-sm"
+                  className="object-cover"
                   priority={isLatest}
                 />
               ) : (
-                <div className="flex size-full items-center justify-center rounded-sm bg-foreground/5 text-xs text-muted">
+                <div className="flex size-full items-center justify-center bg-foreground/5 text-xs text-muted">
                   {ex.year}
                 </div>
               )}
