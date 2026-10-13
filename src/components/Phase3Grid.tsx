@@ -19,11 +19,12 @@ const POSTER_H_BASE = "h-[520px]";
 
 /**
  * Phase 3 — 포스터 그리드(가로 스크롤 + 스냅).
- * 모든 포스터는 카드 폭(CARD_W)을 항상 꽉 채우고(object-cover), 높이만
- * POSTER_H_BASE로 통일 — 원본 이미지 비율이 연도마다 달라도 전부 동일한 크기로 보임.
- * 확대는 `height`가 아니라 `transform: scaleY()`로 처리(레이아웃 리플로우 없이 부드럽게
- * 커짐) — scaleY만 쓰고 scaleX는 그대로 둬서 가로폭은 안 변하고(옆 카드와 안 겹침),
- * 세로로만 커지도록 함.
+ * 기본 상태는 카드 폭(CARD_W)을 항상 꽉 채우고(object-cover), 높이는 520px로 통일
+ * — 원본 이미지 비율이 연도마다 달라도 전부 동일한 크기로 보임.
+ * 확대(호버/선택)는 `height`가 아니라 `transform: scale()`(가로세로 동일 비율, 520→600 =
+ * ×1.1538)로 처리해서 레이아웃 리플로우 없이 부드럽게, Component13 그대로 비율 유지하며
+ * 커짐. 가로도 같이 커지는 만큼 옆 카드 쪽으로 살짝 넘어갈 수 있어 확대된 카드가 항상
+ * 위에 보이도록 z-index를 올림.
  *
  * 데스크탑(≥1440, 마우스): 호버 시 확대(순수 CSS). 클릭 시 "VISIT WEB SITE" 노출, 한 번 더 클릭 시 이동.
  * 태블릿·모바일(<1440, 터치): 호버 단계 없이 탭 1회로 바로 확대+"VISIT WEB SITE" 노출, 탭 1회 더로 이동.
@@ -46,13 +47,15 @@ export default function Phase3Grid({ exhibitions }: Props) {
                     setRevealedYear(ex.year);
                   }
                 }}
-                className="group flex flex-col items-center gap-4 py-10"
+                className={`group relative flex flex-col items-center gap-4 py-10 ${
+                  isRevealed ? "z-10" : "min-[1440px]:hover:z-10"
+                }`}
               >
                 <div
                   className={`relative w-full origin-center transition-transform duration-300 ease-out will-change-transform ${POSTER_H_BASE} ${
                     isRevealed
-                      ? "scale-y-[1.1538]"
-                      : "min-[1440px]:group-hover:scale-y-[1.1538]"
+                      ? "scale-[1.1538]"
+                      : "min-[1440px]:group-hover:scale-[1.1538]"
                   }`}
                 >
                   {ex.posterSrc ? (
