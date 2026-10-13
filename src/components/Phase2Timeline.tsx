@@ -7,10 +7,25 @@ type Props = {
   exhibitions: Exhibition[];
 };
 
+// Figma 실측(desktop 1440): 연도 36px/Light/-1.08px, 타이틀 64px/ExtraBold/-1.92px,
+// 연도-타이틀 간격 44px, 행간격 80px. 모바일(390)은 정확히 0.5배, 1920은 1.1배
+// (다른 요소들과 동일한 스케일 패턴). 768(태블릿)은 Figma 지정 없어 중간값으로 보간.
+const YEAR_TEXT =
+  "text-[18px] tracking-[-0.54px] min-[768px]:text-[27px] min-[768px]:tracking-[-0.81px] min-[1440px]:text-[36px] min-[1440px]:tracking-[-1.08px] min-[1920px]:text-[40px] min-[1920px]:tracking-[-1.19px]";
+const TITLE_TEXT =
+  "text-[32px] tracking-[-0.96px] min-[768px]:text-[48px] min-[768px]:tracking-[-1.44px] min-[1440px]:text-[64px] min-[1440px]:tracking-[-1.92px] min-[1920px]:text-[70px] min-[1920px]:tracking-[-2.11px]";
+const ROW_GAP =
+  "gap-[22px] min-[768px]:gap-[33px] min-[1440px]:gap-[44px] min-[1920px]:gap-[48px]";
+const LIST_GAP =
+  "gap-[40px] min-[768px]:gap-[60px] min-[1440px]:gap-[80px] min-[1920px]:gap-[88px]";
+const LIST_WIDTH =
+  "max-w-[297px] min-[768px]:max-w-[450px] min-[1440px]:max-w-[594px] min-[1920px]:max-w-[653px]";
+
 /**
  * Phase 2 — 연혁 섹션.
  * 좌측: 선택된 연도의 무빙포스터 반복재생. 우측: 연도별 타이틀 리스트(최신연도가 하단).
- * 선택 연도 기준으로 멀어질수록 텍스트 불투명도가 단계적으로 낮아짐.
+ * Figma 실측 결과 선택 여부로 글자 크기나 굵기는 안 바뀌고(항상 ExtraBold, 항상 같은
+ * 크기), 오직 불투명도만 선택 연도 기준 거리에 따라 단계적으로 낮아짐.
  */
 export default function Phase2Timeline({ exhibitions }: Props) {
   const latestYear = exhibitions[0]?.year;
@@ -57,23 +72,25 @@ export default function Phase2Timeline({ exhibitions }: Props) {
         )}
       </div>
 
-      <ul className="flex w-full max-w-[600px] flex-col items-end gap-2 text-right">
+      <ul className={`flex w-full flex-col items-end text-right ${LIST_WIDTH} ${LIST_GAP}`}>
         {listOldestFirst.map((ex) => {
           const distance = Math.abs((selectedYear ?? latestYear ?? ex.year) - ex.year);
-          const isSelected = ex.year === (selectedYear ?? latestYear);
           return (
             <li key={ex.year}>
               <button
                 type="button"
                 onClick={() => setSelectedYear(ex.year)}
                 style={{ opacity: opacityForDistance(distance) }}
-                className="flex items-baseline gap-4 py-1 transition-opacity duration-300"
+                className={`flex items-start transition-opacity duration-300 ${ROW_GAP}`}
               >
-                <span className="font-sans text-sm text-muted">{ex.year}</span>
                 <span
-                  className={`font-display text-2xl sm:text-3xl lg:text-4xl ${
-                    isSelected ? "font-bold text-foreground" : "font-normal"
-                  }`}
+                  className={`font-display font-light leading-none text-foreground ${YEAR_TEXT}`}
+                >
+                  {ex.year}
+                </span>
+                <span
+                  className={`font-display font-extrabold text-foreground ${TITLE_TEXT}`}
+                  style={{ lineHeight: 0.8 }}
                 >
                   {ex.titleEn || ex.titleKo}
                 </span>

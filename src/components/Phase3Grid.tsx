@@ -17,19 +17,15 @@ const GAP =
   "gap-[8px] min-[768px]:gap-[10px] min-[1440px]:gap-[12px] min-[1920px]:gap-[13px]";
 const POSTER_H_BASE =
   "h-[364px] min-[768px]:h-[442px] min-[1440px]:h-[520px] min-[1920px]:h-[572px]";
-const POSTER_H_GROWN =
-  "h-[420px] min-[768px]:h-[510px] min-[1440px]:h-[600px] min-[1920px]:h-[660px]";
-const POSTER_H_GROWN_ON_HOVER = [
-  "min-[1440px]:group-hover:h-[600px]",
-  "min-[1920px]:group-hover:h-[660px]",
-].join(" ");
+// 600/520 = 420/364 = 510/442 = 660/572 = 1.1538... 전 브레이크포인트 동일 배율
 
 /**
  * Phase 3 — 포스터 그리드(가로 스크롤 + 스냅).
- * Figma 실측: 카드 슬롯 너비는 고정, 포스터는 너비가 아니라 "높이"로 크기가 정해짐
- * (기본 POSTER_H_BASE, 확대 시 POSTER_H_GROWN) — 가로폭은 2897:4096 비율로 자동
- * 계산되어 가운데 정렬됨. 기본 상태에선 카드 슬롯보다 포스터가 좁게 보이다가,
- * 커지면 슬롯 너비에 꽉 차게 맞음.
+ * 모든 포스터는 카드 폭(CARD_W)을 항상 꽉 채우고(object-cover), 높이만
+ * POSTER_H_BASE로 통일 — 원본 이미지 비율이 연도마다 달라도 전부 동일한 크기로 보임.
+ * 확대는 `height`가 아니라 `transform: scaleY()`로 처리(레이아웃 리플로우 없이 부드럽게
+ * 커짐) — scaleY만 쓰고 scaleX는 그대로 둬서 가로폭은 안 변하고(옆 카드와 안 겹침),
+ * 세로로만 커지도록 함.
  *
  * 데스크탑(≥1440, 마우스): 호버 시 확대(순수 CSS). 클릭 시 "VISIT WEB SITE" 노출, 한 번 더 클릭 시 이동.
  * 태블릿·모바일(<1440, 터치): 호버 단계 없이 탭 1회로 바로 확대+"VISIT WEB SITE" 노출, 탭 1회 더로 이동.
@@ -55,8 +51,10 @@ export default function Phase3Grid({ exhibitions }: Props) {
                 className="group flex flex-col items-center gap-4 py-10"
               >
                 <div
-                  className={`relative aspect-[2897/4096] transition-[height] duration-300 ${
-                    isRevealed ? POSTER_H_GROWN : `${POSTER_H_BASE} ${POSTER_H_GROWN_ON_HOVER}`
+                  className={`relative w-full origin-center transition-transform duration-300 ease-out will-change-transform ${POSTER_H_BASE} ${
+                    isRevealed
+                      ? "scale-y-[1.1538]"
+                      : "min-[1440px]:group-hover:scale-y-[1.1538]"
                   }`}
                 >
                   {ex.posterSrc ? (
@@ -64,8 +62,8 @@ export default function Phase3Grid({ exhibitions }: Props) {
                       src={ex.posterSrc}
                       alt={`${ex.year} ${ex.titleKo} 포스터`}
                       fill
-                      sizes="(min-width: 1920px) 572px, (min-width: 1440px) 520px, (min-width: 768px) 442px, 364px"
-                      className="object-contain shadow-[0px_0px_50px_0px_rgba(0,0,0,0.05)]"
+                      sizes="(min-width: 1920px) 466px, (min-width: 1440px) 424px, (min-width: 768px) 360px, 297px"
+                      className="object-cover shadow-[0px_0px_50px_0px_rgba(0,0,0,0.05)]"
                     />
                   ) : (
                     <div className="flex size-full items-center justify-center bg-foreground/5 text-sm text-muted">
