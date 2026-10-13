@@ -19,9 +19,10 @@ const GAP =
 
 /**
  * Phase 3 — 포스터 그리드(가로 스크롤 + 스냅).
- * Component13 실측: 프레임(바깥 박스) 424×640 고정, 포스터는 그보다 작은 520로
- * 프레임 안에 가운데 배치. 호버/선택 시 포스터가 가로세로 비율 유지하며 600까지
- * 커짐 — 640 프레임 안에 600이 들어가고도 여유(20px)가 남아서 잘릴 일이 없음.
+ * Component13 실측: 프레임(바깥 박스) 424×640 고정, 포스터는 높이 기준 520(기본)/
+ * 600(호버·선택)이고 가로폭은 각 이미지 원본 비율 그대로(object-contain, 크롭 없음
+ * — 연도마다 포스터 원본 비율이 달라서 실제 보이는 가로폭도 서로 다를 수 있음, 이게
+ * 맞는 동작). 640 프레임 안에 600이 들어가고도 여유(20px)가 남아서 잘릴 일이 없음.
  * "VISIT WEB SITE"는 이 프레임 바깥, 고정된 위치에 있어서 포스터가 커져도 안 가려짐.
  * 가로도 같이 커지는 만큼 옆 카드 쪽으로 살짝 걸칠 수 있어, 확대된 카드가 항상
  * 위에 보이도록 z-index를 올림.
@@ -66,7 +67,7 @@ export default function Phase3Grid({ exhibitions }: Props) {
                         alt={`${ex.year} ${ex.titleKo} 포스터`}
                         fill
                         sizes="(min-width: 1920px) 466px, (min-width: 1440px) 424px, (min-width: 768px) 360px, 297px"
-                        className="object-cover shadow-[0px_0px_50px_0px_rgba(0,0,0,0.05)]"
+                        className="object-contain shadow-[0px_0px_50px_0px_rgba(0,0,0,0.05)]"
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center bg-foreground/5 text-sm text-muted">
