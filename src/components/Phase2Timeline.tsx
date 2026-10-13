@@ -114,7 +114,7 @@ export default function Phase2Timeline({ exhibitions }: Props) {
                   type="button"
                   onClick={() => setSelectedYear(ex.year)}
                   style={{ opacity: opacityForDistance(distance) }}
-                  className={`flex items-start transition-opacity duration-300 ${ROW_GAP}`}
+                  className={`flex items-start text-right transition-opacity duration-300 ${ROW_GAP}`}
                 >
                   <span
                     className={`font-display font-light leading-none text-foreground ${YEAR_TEXT}`}
