@@ -122,10 +122,14 @@ export default function Phase2Timeline({ exhibitions }: Props) {
                     {ex.year}
                   </span>
                   <span
-                    className={`font-display font-extrabold text-foreground ${TITLE_TEXT}`}
+                    className={`font-display font-extrabold text-foreground ${TITLE_TEXT} flex flex-col items-end`}
                     style={{ lineHeight: 0.8 }}
                   >
-                    {ex.titleEn || ex.titleKo}
+                    {(ex.titleEn || ex.titleKo).split("\n").map((line, i) => (
+                      <span key={i} className="w-fit">
+                        {line}
+                      </span>
+                    ))}
                   </span>
                 </button>
               </li>
