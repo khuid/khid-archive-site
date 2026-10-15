@@ -76,7 +76,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
               ONLINE GRADUATION EXHIBITION ARCHIVE
             </p>
           </div>
-          <p className="text-justify font-sans text-[length:calc(14px*var(--s))] leading-[1.3] tracking-[-0.04em] text-foreground min-[1280px]:w-[406px] min-[1280px]:max-w-full min-[1280px]:text-[14px] min-[1920px]:w-[446px] min-[1920px]:text-[15.342px]">
+          {/* 640~1279는 아래 "35th ~" 줄(12px × 배율)과 같은 크기 */}
+          <p className="text-justify font-sans text-[length:calc(14px*var(--s))] leading-[1.3] tracking-[-0.04em] text-foreground min-[640px]:text-[length:calc(12px*var(--s))] min-[1280px]:w-[406px] min-[1280px]:max-w-full min-[1280px]:text-[14px] min-[1920px]:w-[446px] min-[1920px]:text-[15.342px]">
             An online archive of Kyung Hee University Industrial Design
             graduation exhibitions. The archive brings together works across
             product, spatial, UX/UI, and mobility design. It captures the
