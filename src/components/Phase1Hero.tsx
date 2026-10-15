@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/exhibitions";
 
@@ -19,16 +20,66 @@ export default function Phase1Hero({ exhibitions }: Props) {
   // 쌓이는 모션은 뒤(과거)부터 앞(최신) 순으로 보여주기 위해 역순으로 순회
   const stack = [...exhibitions].reverse();
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const stackRef = useRef<HTMLDivElement>(null);
+
+  // 쌓이는 모션 다시 재생: 각 카드의 CSS 애니메이션을 처음(delay 포함)부터 재시작
+  const replayStack = useCallback(() => {
+    stackRef.current
+      ?.getAnimations({ subtree: true })
+      .forEach((animation) => {
+        animation.cancel();
+        animation.play();
+      });
+  }, []);
+
+  // 다른 섹션으로 완전히 벗어났다가 Phase1으로 다시 돌아오면(30% 이상 보이면) 한 번 더 재생
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    let hasLeft = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          hasLeft = true;
+        } else if (hasLeft && entry.intersectionRatio >= 0.3) {
+          hasLeft = false;
+          replayStack();
+        }
+      },
+      { threshold: [0, 0.3] },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [replayStack]);
+
   // 레이아웃 기준: 1280부터 데스크탑(가로 배치), 그 전은 전부 모바일(Figma 390)과 같은 세로 구조.
   // 모바일 구간은 Figma 모바일 실측값 × 배율(--s)로 통일해 화면이 커져도 같은 비율 유지:
   // 1(~639) → 1.25(640~) → 1.43(768~) → 1.55(1024~, 텍스트 칼럼이 데스크탑 폭 530에 도달).
   // 브레이크포인트를 전부 px로 쓴 이유: sm:/lg:(rem)와 min-[..px]를 섞으면 px 쪽이 먼저
   // 생성돼 순서가 꼬임(1920 값이 lg에 덮이는 문제가 있었음)
   return (
-    <section className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1280px]:flex-row min-[1280px]:gap-16 min-[1280px]:px-[93px]">
+    <section
+      ref={sectionRef}
+      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1280px]:flex-row min-[1280px]:gap-16 min-[1280px]:px-[93px]"
+    >
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
           모바일 구간은 360 × 배율, 1280~1439는 텍스트 칼럼(530)과 한 줄에 들어가도록 480 */}
-      <div className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 min-[1280px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]">
+      {/* 초대장 영역을 누르면(또는 키보드 Enter/Space) 쌓이는 모션 다시 재생 */}
+      <div
+        ref={stackRef}
+        role="button"
+        tabIndex={0}
+        aria-label="초대장 쌓이는 모션 다시 보기"
+        onClick={replayStack}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            replayStack();
+          }
+        }}
+        className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1280px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]"
+      >
         {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 그대로 겹침.
             오래된 연도부터(23→24→25→26) 화면 위에서 빠르게 내려와 쌓이고, 최신 연도만 컬러·나머지는 회색조 */}
         {stack.map((ex, i) => {
