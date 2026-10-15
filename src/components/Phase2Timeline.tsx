@@ -40,6 +40,10 @@ export default function Phase2Timeline({ exhibitions }: Props) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<number, HTMLLIElement | null>>({});
   const [offset, setOffset] = useState(0);
+  // 브라우저는 사용자 상호작용 전 "소리 있는" 자동재생을 막음 — 처음엔 음소거로
+  // 자동재생하다가, 사용자가 연도를 한 번이라도 클릭하면 그 이후로는 소리를 켬
+  // (해당 연도 영상에 오디오 트랙이 없으면 음소거 여부와 무관하게 어차피 무음)
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const selected =
     exhibitions.find((ex) => ex.year === selectedYear) ?? exhibitions[0];
@@ -78,7 +82,7 @@ export default function Phase2Timeline({ exhibitions }: Props) {
             src={selected.movingPosterSrc}
             autoPlay
             loop
-            muted
+            muted={!hasInteracted}
             playsInline
             className="size-full object-cover"
           />
@@ -112,7 +116,10 @@ export default function Phase2Timeline({ exhibitions }: Props) {
               >
                 <button
                   type="button"
-                  onClick={() => setSelectedYear(ex.year)}
+                  onClick={() => {
+                    setSelectedYear(ex.year);
+                    setHasInteracted(true);
+                  }}
                   style={{ opacity: opacityForDistance(distance) }}
                   className={`flex items-start text-right transition-opacity duration-300 ${ROW_GAP}`}
                 >
