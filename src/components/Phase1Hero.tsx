@@ -19,7 +19,10 @@ export default function Phase1Hero({ exhibitions }: Props) {
 
   return (
     <section className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 md:flex-row md:items-center md:gap-16 md:px-12 lg:px-[93px]">
-      <div className="relative aspect-square w-full max-w-[280px] shrink-0 min-[640px]:max-w-[360px] min-[1024px]:max-w-[560px] min-[1920px]:max-w-[680px]">
+      {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
+          768(태블릿)은 Figma 지정 없어 중간값으로 보간. w-full+max-w로 더 좁은
+          화면에서도 잘리지 않고 자연스럽게 줄어들게 함 */}
+      <div className="relative aspect-square w-full max-w-[360px] shrink-0 min-[768px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]">
         {stack.map((ex, i) => {
           const isLatest = i === stack.length - 1;
           const depth = stack.length - 1 - i; // 0 = 최신(맨 위), 커질수록 더 아래/오래된 카드
@@ -42,7 +45,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                   src={ex.invitationSrc}
                   alt={`${ex.year} ${ex.titleKo} 초대장`}
                   fill
-                  sizes="(min-width: 1920px) 680px, (min-width: 1024px) 560px, (min-width: 640px) 360px, 280px"
+                  sizes="(min-width: 1920px) 726px, (min-width: 1440px) 660px, (min-width: 768px) 480px, 360px"
                   className="object-cover"
                   priority={isLatest}
                 />
