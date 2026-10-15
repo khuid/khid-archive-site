@@ -5,7 +5,7 @@ export default function Header() {
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo/khu.svg"
+            src="/logo/khu1.svg"
             alt="경희대학교 휘장"
             className="size-[40px] shrink-0 object-contain"
           />
