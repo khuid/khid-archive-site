@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Exhibition } from "@/lib/exhibitions";
 
 type Props = {
@@ -41,9 +41,15 @@ export default function Phase2Timeline({ exhibitions }: Props) {
   const itemRefs = useRef<Record<number, HTMLLIElement | null>>({});
   const [offset, setOffset] = useState(0);
   // 브라우저는 사용자 상호작용 전 "소리 있는" 자동재생을 막음 — 처음엔 음소거로
-  // 자동재생하다가, 사용자가 연도를 한 번이라도 클릭하면 그 이후로는 소리를 켬
+  // 자동재생하다가, 페이지 어디든 한 번이라도 클릭하면 그 이후로는 소리를 켬
   // (해당 연도 영상에 오디오 트랙이 없으면 음소거 여부와 무관하게 어차피 무음)
   const [hasInteracted, setHasInteracted] = useState(false);
+
+  useEffect(() => {
+    const unmute = () => setHasInteracted(true);
+    document.addEventListener("click", unmute, { once: true });
+    return () => document.removeEventListener("click", unmute);
+  }, []);
 
   const selected =
     exhibitions.find((ex) => ex.year === selectedYear) ?? exhibitions[0];
@@ -116,10 +122,7 @@ export default function Phase2Timeline({ exhibitions }: Props) {
               >
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedYear(ex.year);
-                    setHasInteracted(true);
-                  }}
+                  onClick={() => setSelectedYear(ex.year)}
                   style={{ opacity: opacityForDistance(distance) }}
                   className={`flex items-start text-right transition-opacity duration-300 ${ROW_GAP}`}
                 >
