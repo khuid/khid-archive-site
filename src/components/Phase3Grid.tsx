@@ -42,7 +42,8 @@ export default function Phase3Grid({ exhibitions }: Props) {
 
   return (
     <section className="px-6 py-24 min-[1280px]:px-[93px]">
-      <ul className={`flex snap-x snap-mandatory overflow-x-auto pb-4 ${GAP}`}>
+      {/* 가로 스크롤은 유지하고 스크롤바만 숨김 (Firefox: scrollbar-width / Chrome·Safari: ::-webkit-scrollbar) */}
+      <ul className={`flex snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${GAP}`}>
         {exhibitions.map((ex) => {
           const isRevealed = revealedYear === ex.year;
           return (

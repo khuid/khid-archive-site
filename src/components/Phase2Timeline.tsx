@@ -16,14 +16,17 @@ const TITLE_TEXT =
   "text-[32px] tracking-[-0.96px] min-[768px]:text-[48px] min-[768px]:tracking-[-1.44px] min-[1440px]:text-[64px] min-[1440px]:tracking-[-1.92px] min-[1920px]:text-[70px] min-[1920px]:tracking-[-2.11px]";
 const ROW_GAP =
   "gap-[22px] min-[768px]:gap-[33px] min-[1440px]:gap-[44px] min-[1920px]:gap-[48px]";
+// 세로 배치(모바일 구간)는 390 기준 32px, 768은 같은 비율(×0.8)로 48px
 const LIST_GAP =
-  "gap-[40px] min-[768px]:gap-[60px] min-[1440px]:gap-[80px] min-[1920px]:gap-[88px]";
+  "gap-[32px] min-[768px]:gap-[48px] min-[1440px]:gap-[80px] min-[1920px]:gap-[88px]";
 const LIST_WIDTH =
   "max-w-[297px] min-[768px]:max-w-[450px] min-[1440px]:max-w-[594px] min-[1920px]:max-w-[653px]";
 // 무빙포스터(467:660 비율) 각 폭(317/390/467/514)에 대응하는 실제 높이값 —
-// 이 높이를 리스트 뷰포트에도 그대로 써서 선택된 연도가 영상 세로 중앙에 오도록 함
+// 데스크탑에서는 이 높이를 리스트 뷰포트에도 그대로 써서 선택된 연도가 영상 세로 중앙에 오도록 함
+// 세로 배치(~1279)는 3개 항목만 보이므로 영상 높이 대신 3개 묶음에 맞춘 높이:
+// 390 기준 172, 768은 글자 크기 비율(32→48, ×1.5)대로 258
 const VIEWPORT_H =
-  "h-[448px] min-[768px]:h-[551px] min-[1440px]:h-[660px] min-[1920px]:h-[726px]";
+  "h-[172px] min-[768px]:h-[258px] min-[1280px]:h-[551px] min-[1440px]:h-[660px] min-[1920px]:h-[726px]";
 const VIDEO_W = "w-[317px] min-[768px]:w-[390px] min-[1440px]:w-[467px] min-[1920px]:w-[514px]";
 
 /**
@@ -58,6 +61,25 @@ export default function Phase2Timeline({ exhibitions }: Props) {
   // 오래된 연도 → 최신 연도 순으로 아래에서 위로 쌓이도록 표시
   const listOldestFirst = [...exhibitions].reverse();
 
+  // 1280부터 데스크탑(가로 배치). 세로 배치에서는 항상 연속된 3개만 보여줌
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // 세로 배치용 3개 창: 선택 연도 ±1, 양 끝 연도면 반대쪽으로 2개를 채움
+  // (예: 최신 26 선택 → 24·25·26 / 중간 24 선택 → 23·24·25)
+  const activeIndex = listOldestFirst.findIndex((ex) => ex.year === activeYear);
+  const windowStart = Math.max(
+    0,
+    Math.min(activeIndex - 1, listOldestFirst.length - 3),
+  );
+  const windowEnd = Math.min(listOldestFirst.length - 1, windowStart + 2);
+
   const opacityForDistance = (distance: number) => {
     if (distance === 0) return 1;
     if (distance === 1) return 0.3;
@@ -68,19 +90,33 @@ export default function Phase2Timeline({ exhibitions }: Props) {
   useLayoutEffect(() => {
     const recompute = () => {
       const viewport = viewportRef.current;
-      const item = activeYear != null ? itemRefs.current[activeYear] : null;
-      if (!viewport || !item) return;
-      const itemCenter = item.offsetTop + item.offsetHeight / 2;
-      setOffset(viewport.clientHeight / 2 - itemCenter);
+      if (!viewport) return;
+      if (isDesktop) {
+        // 데스크탑: 선택된 연도의 세로 중심을 뷰포트 가운데에
+        const item = activeYear != null ? itemRefs.current[activeYear] : null;
+        if (!item) return;
+        const itemCenter = item.offsetTop + item.offsetHeight / 2;
+        setOffset(viewport.clientHeight / 2 - itemCenter);
+      } else {
+        // 세로 배치: 보이는 3개 묶음 전체의 세로 중심을 뷰포트 가운데에
+        const first = itemRefs.current[listOldestFirst[windowStart]?.year];
+        const last = itemRefs.current[listOldestFirst[windowEnd]?.year];
+        if (!first || !last) return;
+        const groupCenter =
+          (first.offsetTop + last.offsetTop + last.offsetHeight) / 2;
+        setOffset(viewport.clientHeight / 2 - groupCenter);
+      }
     };
     recompute();
     window.addEventListener("resize", recompute);
     return () => window.removeEventListener("resize", recompute);
-  }, [activeYear]);
+    // listOldestFirst는 매 렌더 새 배열이라 의존성 대신 windowStart/End로 변화 감지
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeYear, isDesktop, windowStart, windowEnd]);
 
   // 1280부터 데스크탑(가로 배치), 그 전은 모바일과 같은 세로 구조
   return (
-    <section className="flex flex-col items-center gap-10 px-6 py-24 min-[1280px]:flex-row min-[1280px]:items-start min-[1280px]:justify-center min-[1280px]:gap-20 min-[1280px]:px-[93px]">
+    <section className="flex flex-col items-center gap-4 px-6 py-24 min-[1280px]:flex-row min-[1280px]:items-start min-[1280px]:justify-center min-[1280px]:gap-20 min-[1280px]:px-[93px]">
       {/* Figma 실측: 467x660(1440), 513.7x725.2(1920), 317.3x448(모바일) — 전부 467:660 비율 */}
       <div className={`relative aspect-[467/660] shrink-0 overflow-hidden bg-foreground/5 ${VIDEO_W}`}>
         {selected?.movingPosterSrc ? (
@@ -109,11 +145,18 @@ export default function Phase2Timeline({ exhibitions }: Props) {
 
       <div ref={viewportRef} className={`relative w-full overflow-hidden ${LIST_WIDTH} ${VIEWPORT_H}`}>
         <ul
-          className={`absolute inset-x-0 top-0 flex w-full flex-col items-end text-right transition-transform duration-500 ease-out ${LIST_GAP}`}
+          className={`absolute inset-x-0 top-0 flex w-full flex-col items-center text-right transition-transform min-[1280px]:items-end duration-500 ease-out ${LIST_GAP}`}
           style={{ transform: `translateY(${offset}px)` }}
         >
           {listOldestFirst.map((ex) => {
             const distance = Math.abs((activeYear ?? ex.year) - ex.year);
+            const index = listOldestFirst.indexOf(ex);
+            const inWindow = index >= windowStart && index <= windowEnd;
+            const opacity = isDesktop
+              ? opacityForDistance(distance)
+              : inWindow
+                ? opacityForDistance(distance)
+                : 0;
             return (
               <li
                 key={ex.year}
@@ -124,7 +167,7 @@ export default function Phase2Timeline({ exhibitions }: Props) {
                 <button
                   type="button"
                   onClick={() => setSelectedYear(ex.year)}
-                  style={{ opacity: opacityForDistance(distance) }}
+                  style={{ opacity, pointerEvents: opacity === 0 ? "none" : undefined }}
                   className={`flex items-start text-right transition-opacity duration-300 ${ROW_GAP}`}
                 >
                   <span

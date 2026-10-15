@@ -65,10 +65,10 @@ export default function Phase1Hero({ exhibitions }: Props) {
         })}
       </div>
 
-      <div className="flex w-full max-w-[calc(342px*var(--s))] flex-col gap-[calc(52px*var(--s))] text-foreground min-[1280px]:max-w-[530px] min-[1280px]:gap-[116px] min-[1920px]:max-w-[583px]">
-        <div className="flex flex-col gap-[calc(16px*var(--s))] min-[1280px]:gap-6">
+      <div className="flex w-full max-w-[calc(342px*var(--s))] flex-col gap-[calc(52px*var(--s))] text-foreground min-[1280px]:max-w-[530px] min-[1280px]:gap-[116px] min-[1920px]:max-w-[583px] min-[1920px]:gap-[127.6px]">
+        <div className="flex flex-col gap-[calc(16px*var(--s))] min-[1280px]:gap-8 min-[1920px]:gap-[35.2px]">
           <div className="leading-none">
-            <p className="font-display text-[length:calc(40px*var(--s))] font-bold tracking-[-0.03em] text-muted min-[1280px]:text-[80px]">
+            <p className="font-display text-[length:calc(40px*var(--s))] font-bold tracking-[-0.03em] text-muted min-[1280px]:text-[80px] min-[1920px]:text-[88px]">
               KHID
             </p>
             {/* Figma 실측 폭 + 양쪽정렬: 280(모바일, 28px), 530(1440, 54px), 583(1920, 59.4px) */}
@@ -76,7 +76,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
               ONLINE GRADUATION EXHIBITION ARCHIVE
             </p>
           </div>
-          <p className="text-justify font-sans text-[length:calc(14px*var(--s))] leading-[1.3] tracking-[-0.04em] text-foreground min-[1280px]:max-w-[341px] min-[1280px]:text-left min-[1280px]:text-[12px]">
+          <p className="text-justify font-sans text-[length:calc(14px*var(--s))] leading-[1.3] tracking-[-0.04em] text-foreground min-[1280px]:w-[406px] min-[1280px]:max-w-full min-[1280px]:text-[14px] min-[1920px]:w-[446px] min-[1920px]:text-[15.342px]">
             An online archive of Kyung Hee University Industrial Design
             graduation exhibitions. The archive brings together works across
             product, spatial, UX/UI, and mobility design. It captures the
@@ -87,22 +87,22 @@ export default function Phase1Hero({ exhibitions }: Props) {
 
         {latest && (
           // Figma 모바일(67:7953): 좌측 제목 / 우측 정보 2열. 데스크탑은 세로 배치
-          <div className="flex items-start justify-between whitespace-nowrap min-[1280px]:flex-col min-[1280px]:justify-start min-[1280px]:gap-6 min-[1280px]:whitespace-normal">
-            <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1280px]:text-[20px]">
+          <div className="flex items-start justify-between whitespace-nowrap min-[1280px]:flex-col min-[1280px]:justify-start min-[1280px]:gap-6 min-[1280px]:whitespace-normal min-[1920px]:gap-[26.4px]">
+            <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1280px]:text-[20px] min-[1920px]:text-[22px]">
               UPCOMING EXHIBITION
               <br />
               INFORMATION
             </p>
-            <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1280px]:gap-3 min-[1280px]:text-[12px]">
-              <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1280px]:gap-1">
+            <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1280px]:gap-3 min-[1280px]:text-[14px] min-[1920px]:gap-[13.2px]">
+              <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1280px]:gap-1 min-[1920px]:gap-[4.4px]">
                 <p className="font-sans">{cohort}th Graduation Exhibition</p>
-                <p className="font-sans font-semibold min-[1280px]:text-[16px]">
+                <p className="font-sans font-semibold min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]">
                   &lt;{latest.titleEn || latest.titleKo}&gt;
                 </p>
               </div>
               <a
                 href={latest.href}
-                className="font-sans font-semibold underline underline-offset-4 min-[1280px]:text-[16px]"
+                className="font-sans font-semibold underline underline-offset-4 min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]"
               >
                 → VISIT {latest.year} ON-LINE EXHIBITION
               </a>
