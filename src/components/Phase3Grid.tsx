@@ -30,8 +30,12 @@ const GAP = "gap-[24px]";
  * 포스터·프레임이 position:absolute 안에서만 움직이고 커져서(li/ul 레이아웃에 영향 없음)
  * top/height 전환이어도 리플로우 없이 부드러움.
  *
- * 데스크탑(≥1440, 마우스): 호버 시 확대(순수 CSS). 클릭 시 "VISIT WEB SITE" 노출, 한 번 더 클릭 시 이동.
- * 태블릿·모바일(<1440, 터치): 호버 단계 없이 탭 1회로 바로 확대+"VISIT WEB SITE" 노출, 탭 1회 더로 이동.
+ * 포스터 클릭/탭 = 선택 토글(다시 누르면 선택 해제, 다른 카드 누르면 그쪽으로 전환).
+ * 링크 이동은 오직 "VISIT WEB SITE" 글자를 직접 눌렀을 때만 일어남 — 포스터 자체는
+ * 절대 페이지 이동을 일으키지 않음.
+ *
+ * 데스크탑(≥1440, 마우스): 호버 시 확대(순수 CSS, 선택 여부와 무관).
+ * 태블릿·모바일(<1440, 터치): 호버 없이 탭으로 바로 확대+"VISIT WEB SITE" 노출.
  */
 export default function Phase3Grid({ exhibitions }: Props) {
   const [revealedYear, setRevealedYear] = useState<number | null>(null);
@@ -43,22 +47,19 @@ export default function Phase3Grid({ exhibitions }: Props) {
           const isRevealed = revealedYear === ex.year;
           return (
             <li key={ex.year} className={`shrink-0 snap-start ${CARD_W}`}>
-              <a
-                href={ex.href}
-                onClick={(e) => {
-                  if (!isRevealed) {
-                    e.preventDefault();
-                    setRevealedYear(ex.year);
-                  }
-                }}
+              <div
                 className={`group relative block w-full py-10 ${
                   isRevealed ? "z-10" : "min-[1440px]:hover:z-10"
                 }`}
               >
                 {/* 프레임: Component13 실측대로 항상 424×640 고정 */}
                 <div className="relative h-[640px] w-full">
-                  <div
-                    className={`absolute inset-x-0 transition-all duration-300 ease-out ${
+                  {/* 포스터 — 클릭하면 선택 토글(다시 누르면 해제), 페이지 이동은 안 함 */}
+                  <button
+                    type="button"
+                    onClick={() => setRevealedYear(isRevealed ? null : ex.year)}
+                    aria-label={`${ex.year} ${ex.titleKo} 포스터 ${isRevealed ? "선택 해제" : "선택"}`}
+                    className={`absolute inset-x-0 cursor-pointer transition-all duration-300 ease-out ${
                       isRevealed
                         ? "top-0 h-[600px]"
                         : "top-[40px] h-[520px] min-[1440px]:group-hover:top-0 min-[1440px]:group-hover:h-[600px]"
@@ -77,17 +78,19 @@ export default function Phase3Grid({ exhibitions }: Props) {
                         {ex.year}
                       </div>
                     )}
-                  </div>
-                  {/* 포스터(최대 600) + 16px 간격 지점에 고정 — 프레임(640) 안에서 안 밀리고 안 가려짐 */}
-                  <p
+                  </button>
+                  {/* 포스터(최대 600) + 16px 간격 지점에 고정 — 실제 이동 링크는 여기뿐 */}
+                  <a
+                    href={ex.href}
+                    tabIndex={isRevealed ? 0 : -1}
                     className={`absolute inset-x-0 top-[616px] text-center font-display text-[20px] leading-none font-light tracking-[-0.8px] text-foreground underline underline-offset-4 transition-opacity duration-200 ${
-                      isRevealed ? "opacity-100" : "opacity-0"
+                      isRevealed ? "opacity-100" : "pointer-events-none opacity-0"
                     }`}
                   >
                     VISIT WEB SITE
-                  </p>
+                  </a>
                 </div>
-              </a>
+              </div>
             </li>
           );
         })}
