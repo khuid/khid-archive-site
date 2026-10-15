@@ -34,14 +34,14 @@ const GAP = "gap-[24px]";
  * 링크 이동은 오직 "VISIT WEB SITE" 글자를 직접 눌렀을 때만 일어남 — 포스터 자체는
  * 절대 페이지 이동을 일으키지 않음.
  *
- * 데스크탑(≥1440, 마우스): 호버 시 확대(순수 CSS, 선택 여부와 무관).
- * 태블릿·모바일(<1440, 터치): 호버 없이 탭으로 바로 확대+"VISIT WEB SITE" 노출.
+ * 데스크탑(≥1280, 마우스): 호버 시 확대(순수 CSS, 선택 여부와 무관).
+ * 태블릿·모바일(<1280, 터치): 호버 없이 탭으로 바로 확대+"VISIT WEB SITE" 노출.
  */
 export default function Phase3Grid({ exhibitions }: Props) {
   const [revealedYear, setRevealedYear] = useState<number | null>(null);
 
   return (
-    <section className="px-6 py-24 min-[768px]:px-12 min-[1440px]:px-[93px]">
+    <section className="px-6 py-24 min-[1280px]:px-[93px]">
       <ul className={`flex snap-x snap-mandatory overflow-x-auto pb-4 ${GAP}`}>
         {exhibitions.map((ex) => {
           const isRevealed = revealedYear === ex.year;
@@ -49,7 +49,7 @@ export default function Phase3Grid({ exhibitions }: Props) {
             <li key={ex.year} className={`shrink-0 snap-start ${CARD_W}`}>
               <div
                 className={`group relative block w-full py-10 ${
-                  isRevealed ? "z-10" : "min-[1440px]:hover:z-10"
+                  isRevealed ? "z-10" : "min-[1280px]:hover:z-10"
                 }`}
               >
                 {/* 프레임: Component13 실측대로 항상 424×640 고정 */}
@@ -62,7 +62,7 @@ export default function Phase3Grid({ exhibitions }: Props) {
                     className={`absolute inset-x-0 cursor-pointer transition-all duration-300 ease-out ${
                       isRevealed
                         ? "top-0 h-[600px]"
-                        : "top-[40px] h-[520px] min-[1440px]:group-hover:top-0 min-[1440px]:group-hover:h-[600px]"
+                        : "top-[40px] h-[520px] min-[1280px]:group-hover:top-0 min-[1280px]:group-hover:h-[600px]"
                     }`}
                   >
                     {ex.posterSrc ? (
