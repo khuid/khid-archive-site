@@ -29,22 +29,17 @@ export default function Phase1Hero({ exhibitions }: Props) {
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
           모바일 구간은 360 × 배율, 1280~1439는 텍스트 칼럼(530)과 한 줄에 들어가도록 480 */}
       <div className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 min-[1280px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]">
+        {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 그대로 겹침.
+            오래된 연도부터(23→24→25→26) 화면 위에서 빠르게 내려와 쌓이고, 최신 연도만 컬러·나머지는 회색조 */}
         {stack.map((ex, i) => {
           const isLatest = i === stack.length - 1;
-          const depth = stack.length - 1 - i; // 0 = 최신(맨 위), 커질수록 더 아래/오래된 카드
-          const rotation = ((i * 37) % 13) - 6; // -6deg ~ +6deg, 연도마다 고정된 각도
-          const scale = isLatest ? 1 : 0.94 - depth * 0.015;
-          const offsetX = isLatest ? 0 : (i % 2 === 0 ? -1 : 1) * (6 + depth * 5);
-          const offsetY = isLatest ? 0 : depth * 7;
           return (
             <div
               key={ex.year}
-              className="absolute inset-0 origin-center animate-[stack-in_0.6s_ease-out_both] shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
-              style={{
-                zIndex: i,
-                transform: `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg) scale(${scale})`,
-                animationDelay: `${i * 90}ms`,
-              }}
+              className={`absolute inset-0 animate-[stack-in_0.6s_cubic-bezier(0.22,1,0.36,1)_both] ${
+                isLatest ? "" : "grayscale"
+              }`}
+              style={{ zIndex: i, animationDelay: `${i * 150}ms` }}
             >
               {ex.invitationSrc ? (
                 <Image
@@ -52,7 +47,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                   alt={`${ex.year} ${ex.titleKo} 초대장`}
                   fill
                   sizes="(min-width: 1920px) 726px, (min-width: 1440px) 660px, (min-width: 1280px) 480px, (min-width: 1024px) 558px, (min-width: 768px) 515px, (min-width: 640px) 450px, 360px"
-                  className="object-cover"
+                  className="object-contain"
                   priority={isLatest}
                 />
               ) : (

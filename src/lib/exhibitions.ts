@@ -54,7 +54,8 @@ export function getExhibitions(): Exhibition[] {
       openingDate: info.openingDate ?? "",
       venue: info.venue ?? "",
       posterSrc: firstExisting(dir, year, "poster", ["jpg", "jpeg", "png"]),
-      invitationSrc: firstExisting(dir, year, "invitation", ["jpg", "jpeg", "png"]),
+      // 초대장은 투명 배경 PNG(660 캔버스 2배)가 기준이라 png를 먼저 찾음
+      invitationSrc: firstExisting(dir, year, "invitation", ["png", "jpg", "jpeg"]),
       movingPosterSrc: firstExisting(dir, year, "moving-poster", ["mp4"]),
       href: `https://khid.archive.khu.ac.kr/${year}`,
     };
