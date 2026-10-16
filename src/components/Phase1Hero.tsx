@@ -19,6 +19,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
   const cohort = latest ? latest.year - 1991 : 0;
   // 쌓이는 모션은 뒤(과거)부터 앞(최신) 순으로 보여주기 위해 역순으로 순회
   const stack = [...exhibitions].reverse();
+  const timeline = getStackTimeline(stack.length);
 
   const sectionRef = useRef<HTMLElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
@@ -81,16 +82,22 @@ export default function Phase1Hero({ exhibitions }: Props) {
         className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1280px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]"
       >
         {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 그대로 겹침.
-            오래된 연도부터(23→24→25→26) 화면 위에서 빠르게 내려와 쌓이고, 최신 연도만 컬러·나머지는 회색조 */}
+            오래된 연도부터(23→24→25→26) 내려오며, 처음엔 빠르게·뒤로 갈수록 천천히 쌓임.
+            내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지) */}
         {stack.map((ex, i) => {
           const isLatest = i === stack.length - 1;
+          const { delay, duration, grayAt } = timeline[i];
+          const animations = [
+            `stack-in ${duration}ms ${STACK_EASING} ${delay}ms both`,
+          ];
+          if (grayAt !== null) {
+            animations.push(`to-gray ${GRAY_FADE_MS}ms ease-out ${grayAt}ms both`);
+          }
           return (
             <div
               key={ex.year}
-              className={`absolute inset-0 animate-[stack-in_0.6s_cubic-bezier(0.22,1,0.36,1)_both] ${
-                isLatest ? "" : "grayscale"
-              }`}
-              style={{ zIndex: i, animationDelay: `${i * 150}ms` }}
+              className="absolute inset-0 will-change-transform"
+              style={{ zIndex: i, animation: animations.join(", ") }}
             >
               {ex.invitationSrc ? (
                 <Image
@@ -159,4 +166,39 @@ export default function Phase1Hero({ exhibitions }: Props) {
       </div>
     </section>
   );
+}
+
+// 쌓이는 모션 타이밍(ms). 카드 순번(0 = 가장 오래된 연도)이 커질수록
+// 내려오는 시간과 다음 카드까지의 간격이 함께 늘어나 점점 느려짐.
+// 떨어지는 시간이 너무 짧으면(0.3초 등) 첫 몇 프레임에 거리 대부분을 건너뛰어 끊겨 보임.
+// 그래서 시간 차이는 작게 두고, 느려지는 느낌은 주로 출발 간격으로 만듦
+// 시간의 앞 78%가 내려오는 구간, 뒤 22%가 바운드라 바운드만큼 조금 늘림
+const FIRST_DURATION_MS = 500;
+const DURATION_GROWTH = 1.08; // 0.50s → 0.54s → 0.58s → 0.63s (전체 약 1.2초)
+// 감속(easeOutCubic)과 바운드는 globals.css의 stack-in 키프레임 구간별로 들어 있어 여기선 linear
+const STACK_EASING = "linear";
+const FIRST_GAP_MS = 120;
+const GAP_GROWTH = 1.8; // 다음 카드 출발 간격 0.12s → 0.22s → 0.22s
+// 간격은 여기서 더 늘지 않음 (마지막 카드가 너무 늦게 출발하지 않도록 24→25 간격에서 멈춤)
+const MAX_GAP_MS = 216;
+// 다음 카드가 아래 카드를 약 3/4 덮은 시점(다음 카드 재생 시간 대비 비율)에 회색조 시작.
+// 화면 높이 대비 카드 크기에 따라 약간 달라짐: 데스크탑 ~80%, 모바일 ~70% 덮였을 때
+const COVERED_AT = 0.37;
+const GRAY_FADE_MS = 400;
+
+function getStackTimeline(count: number) {
+  const items: { delay: number; duration: number }[] = [];
+  let start = 0;
+  for (let i = 0; i < count; i++) {
+    const duration = Math.round(FIRST_DURATION_MS * DURATION_GROWTH ** i);
+    items.push({ delay: start, duration });
+    start += Math.min(Math.round(FIRST_GAP_MS * GAP_GROWTH ** i), MAX_GAP_MS);
+  }
+  return items.map((item, i) => {
+    const next = items[i + 1];
+    return {
+      ...item,
+      grayAt: next ? Math.round(next.delay + next.duration * COVERED_AT) : null,
+    };
+  });
 }

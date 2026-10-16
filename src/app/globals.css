@@ -21,12 +21,29 @@ body {
 }
 
 /* 히어로 초대장: Figma 프로토타입 "Push - 아래로"처럼 화면 위 바깥에서 밀려 내려와
-   제자리에 쌓임 (페이드 없이 위치 이동만) */
+   제자리에 쌓임 (페이드 없이 위치 이동만).
+   내려앉을 때 카드 높이의 1%(약 4~7px)만큼 살짝 더 내려갔다가 제자리로 돌아오는 바운드.
+   전체 이징은 animation-timing-function 대신 구간별로 지정 (컴포넌트에선 linear로 넘김) */
 @keyframes stack-in {
-  from {
+  0% {
     transform: translateY(-100vh);
+    animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  78% {
+    transform: translateY(1%);
+    animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 히어로 초대장: 다음 연도 카드가 위에 내려앉으면 컬러 → 회색조 */
+@keyframes to-gray {
+  from {
+    filter: grayscale(0);
   }
   to {
-    transform: translateY(0);
+    filter: grayscale(1);
   }
 }
