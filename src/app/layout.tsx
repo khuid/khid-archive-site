@@ -22,6 +22,17 @@ export const metadata: Metadata = {
   title: "KHID Online Graduation Exhibition Archive",
   description:
     "경희대학교 산업디자인학과 졸업전시 온라인 아카이브. Kyung Hee University Industrial Design graduation exhibition archive.",
+  // 링크 공유 미리보기의 굵은 제목 (탭 제목과 따로 지정). 이미지는 opengraph-image.tsx
+  openGraph: {
+    title: "KHID Graduation Exhibition Archive",
+    description:
+      "경희대학교 산업디자인학과 졸업전시 온라인 아카이브. Kyung Hee University Industrial Design graduation exhibition archive.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KHID Graduation Exhibition Archive",
+  },
   // 파비콘: SVG 하나가 브라우저 다크모드를 따라 색이 바뀜(크롬·엣지·파이어폭스).
   // SVG 파비콘을 못 쓰는 브라우저(사파리)는 모드별 PNG로 대체
   icons: {

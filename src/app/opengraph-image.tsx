@@ -5,7 +5,7 @@ import { getLatestExhibition } from "@/lib/exhibitions";
 
 // 링크 공유 미리보기(카카오톡·슬랙 등) 이미지: 검은 배경 가운데에 최신 연도 초대장만.
 // 새 연도 폴더가 추가되면 그해 초대장으로 자동으로 바뀜
-export const alt = "KHID Online Graduation Exhibition Archive";
+export const alt = "KHID Graduation Exhibition Archive";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
