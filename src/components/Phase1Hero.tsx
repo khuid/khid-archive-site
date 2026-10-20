@@ -165,7 +165,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                     "--on-key": onKeyColor(latest.keyColor),
                   } as React.CSSProperties
                 }
-                className="group flex w-full items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.35em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]"
+                className="group flex w-full items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.75em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]"
               >
                 <span>VISIT {latest.year} ON-LINE EXHIBITION</span>
                 <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">
