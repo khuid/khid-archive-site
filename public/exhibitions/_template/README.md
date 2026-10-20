@@ -9,7 +9,12 @@
 | `poster.jpg` 또는 `.png` | 포스터 (히어로 + 그리드에 공용으로 쓰임) | JPG/PNG |
 | `invitation.jpg` 또는 `.png` | 초대장 (홈 화면 쌓임 애니메이션용) | JPG/PNG |
 | `moving-poster.mp4` | 무빙포스터 | **MP4(H.264)만 인식됩니다** |
-| `info.json` | 국/영문 타이틀, 날짜, 장소 | JSON |
+| `info.json` | 국/영문 타이틀, 날짜, 장소, 키컬러 | JSON |
+
+## 키컬러
+
+`info.json`의 `keyColor`에 그해 대표색을 `#RRGGBB` 형식으로 넣으면 홈 화면 "VISIT ○○○○ ON-LINE EXHIBITION" 링크 색이 그 색으로 바뀝니다. 비워두면 흰색으로 나옵니다.
+검은 배경 위에 글자로 쓰이니 너무 어두운 색(남색·짙은 갈색 등)은 피해주세요.
 
 ## ⚠️ 무빙포스터는 꼭 MP4로 변환해서 올리세요
 

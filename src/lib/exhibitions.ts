@@ -7,6 +7,8 @@ export type Exhibition = {
   titleEn: string;
   openingDate: string;
   venue: string;
+  /** 그해 키컬러(hex). VISIT 링크 색으로 쓰임 */
+  keyColor?: string;
   posterSrc?: string;
   invitationSrc?: string;
   movingPosterSrc?: string;
@@ -53,6 +55,7 @@ export function getExhibitions(): Exhibition[] {
       titleEn: info.titleEn ?? "",
       openingDate: info.openingDate ?? "",
       venue: info.venue ?? "",
+      keyColor: /^#[0-9a-f]{6}$/i.test(info.keyColor ?? "") ? info.keyColor : undefined,
       posterSrc: firstExisting(dir, year, "poster", ["jpg", "jpeg", "png"]),
       // 초대장은 투명 배경 PNG(660 캔버스 2배)가 기준이라 png를 먼저 찾음
       invitationSrc: firstExisting(dir, year, "invitation", ["png", "jpg", "jpeg"]),

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import type React from "react";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/exhibitions";
 
@@ -147,18 +148,29 @@ export default function Phase1Hero({ exhibitions }: Props) {
               <br />
               INFORMATION
             </p>
-            <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1280px]:gap-3 min-[1280px]:text-[14px] min-[1920px]:gap-[13.2px]">
+            <div className="flex flex-col gap-[calc(12px*var(--s))] min-[1280px]:w-full text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1280px]:gap-3 min-[1280px]:text-[14px] min-[1920px]:gap-[13.2px]">
               <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1280px]:gap-1 min-[1920px]:gap-[4.4px]">
                 <p className="font-sans">{cohort}th Graduation Exhibition</p>
                 <p className="font-sans font-semibold min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]">
                   &lt;{latest.titleEn || latest.titleKo}&gt;
                 </p>
               </div>
+              {/* 연도별 키컬러(info.json keyColor) 글자 + 두꺼운 밑줄, hover 시 키컬러로 채움.
+                  글자는 왼쪽·화살표는 오른쪽 끝으로 벌려 정보 영역 폭을 꽉 채움 */}
               <a
                 href={latest.href}
-                className="font-sans font-semibold underline underline-offset-4 min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]"
+                style={
+                  {
+                    "--key": latest.keyColor ?? "var(--foreground)",
+                    "--on-key": onKeyColor(latest.keyColor),
+                  } as React.CSSProperties
+                }
+                className="group flex w-full items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.35em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]"
               >
-                → VISIT {latest.year} ON-LINE EXHIBITION
+                <span>VISIT {latest.year} ON-LINE EXHIBITION</span>
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">
+                  →
+                </span>
               </a>
             </div>
           </div>
@@ -185,6 +197,14 @@ const MAX_GAP_MS = 216;
 // 화면 높이 대비 카드 크기에 따라 약간 달라짐: 데스크탑 ~80%, 모바일 ~70% 덮였을 때
 const COVERED_AT = 0.37;
 const GRAY_FADE_MS = 400;
+
+// 키컬러로 채워진 hover 상태의 글자색: 밝은 키컬러면 검정, 어두우면 흰색
+function onKeyColor(hex?: string) {
+  if (!hex) return "var(--background)";
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 0.55 ? "#121212" : "#ffffff";
+}
 
 function getStackTimeline(count: number) {
   const items: { delay: number; duration: number }[] = [];
