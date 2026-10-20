@@ -22,6 +22,15 @@ export const metadata: Metadata = {
   title: "KHID Online Graduation Exhibition Archive",
   description:
     "경희대학교 산업디자인학과 졸업전시 온라인 아카이브. Kyung Hee University Industrial Design graduation exhibition archive.",
+  // 파비콘: SVG 하나가 브라우저 다크모드를 따라 색이 바뀜(크롬·엣지·파이어폭스).
+  // SVG 파비콘을 못 쓰는 브라우저(사파리)는 모드별 PNG로 대체
+  icons: {
+    icon: [
+      { url: "/favicon/icon-light.png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon/icon-dark.png", type: "image/png", sizes: "64x64", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon/icon.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
