@@ -31,7 +31,7 @@ const VIDEO_W = "w-[317px] min-[768px]:w-[390px] min-[1440px]:w-[467px] min-[192
 
 // 무빙포스터 재생 볼륨 (0~1). 원본 음원이 커서 낮춰 재생 (2026은 특히 커서 더 낮춤)
 const VIDEO_VOLUME = 0.5;
-const VIDEO_VOLUME_BY_YEAR: Record<number, number> = { 2026: 0.3 };
+const VIDEO_VOLUME_BY_YEAR: Record<number, number> = { 2026: 0.15 };
 
 /**
  * Phase 2 — 연혁 섹션.
