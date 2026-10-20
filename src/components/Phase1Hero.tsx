@@ -124,8 +124,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
             <p className="font-display text-[length:calc(40px*var(--s))] font-bold tracking-[-0.03em] text-muted min-[1280px]:text-[80px] min-[1920px]:text-[88px]">
               KHID
             </p>
-            {/* Figma 실측 폭 + 양쪽정렬: 280(모바일, 28px), 530(1440, 54px), 583(1920, 59.4px) */}
-            <p className="w-[calc(280px*var(--s))] max-w-full text-justify font-display text-[length:calc(28px*var(--s))] font-normal tracking-[-0.03em] min-[1280px]:w-[530px] min-[1280px]:text-[54px] min-[1920px]:w-[583px] min-[1920px]:text-[59.4px]">
+            {/* Figma 실측 폭 + 양쪽정렬(마지막 줄 포함): 280(모바일, 28px), 530(1440, 54px), 583(1920, 59.4px) */}
+            <p className="w-[calc(280px*var(--s))] max-w-full text-justify [text-align-last:justify] font-display text-[length:calc(28px*var(--s))] font-normal tracking-[-0.03em] min-[1280px]:w-[530px] min-[1280px]:text-[54px] min-[1920px]:w-[583px] min-[1920px]:text-[59.4px]">
               ONLINE GRADUATION EXHIBITION ARCHIVE
             </p>
           </div>
