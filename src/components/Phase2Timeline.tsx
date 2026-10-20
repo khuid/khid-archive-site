@@ -29,6 +29,9 @@ const VIEWPORT_H =
   "h-[172px] min-[768px]:h-[258px] min-[1280px]:h-[551px] min-[1440px]:h-[660px] min-[1920px]:h-[726px]";
 const VIDEO_W = "w-[317px] min-[768px]:w-[390px] min-[1440px]:w-[467px] min-[1920px]:w-[514px]";
 
+// 무빙포스터 재생 볼륨 (0~1). 원본 음원이 커서 낮춰 재생
+const VIDEO_VOLUME = 0.3;
+
 /**
  * Phase 2 — 연혁 섹션.
  * 좌측: 선택된 연도의 무빙포스터 반복재생(화면에 보일 때만). 우측: 연도별 타이틀 리스트(최신연도가 하단).
@@ -135,6 +138,7 @@ export default function Phase2Timeline({ exhibitions }: Props) {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+    video.volume = VIDEO_VOLUME;
     if (inView) {
       // 자동재생 정책 등으로 막히면 조용히 무시 (다음 진입이나 클릭 때 다시 시도)
       video.play().catch(() => {});
