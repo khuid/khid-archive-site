@@ -30,7 +30,7 @@ const VIEWPORT_H =
 const VIDEO_W = "w-[317px] min-[768px]:w-[390px] min-[1440px]:w-[467px] min-[1920px]:w-[514px]";
 
 // 무빙포스터 재생 볼륨 (0~1). 원본 음원이 커서 낮춰 재생 (2026은 특히 커서 더 낮춤)
-const VIDEO_VOLUME = 0.5;
+const VIDEO_VOLUME = 0.3;
 const VIDEO_VOLUME_BY_YEAR: Record<number, number> = { 2026: 0.15 };
 
 /**
