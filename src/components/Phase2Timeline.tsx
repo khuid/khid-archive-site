@@ -31,7 +31,7 @@ const VIDEO_W = "w-[317px] min-[768px]:w-[390px] min-[1440px]:w-[467px] min-[192
 
 /**
  * Phase 2 — 연혁 섹션.
- * 좌측: 선택된 연도의 무빙포스터 반복재생. 우측: 연도별 타이틀 리스트(최신연도가 하단).
+ * 좌측: 선택된 연도의 무빙포스터 반복재생(화면에 보일 때만). 우측: 연도별 타이틀 리스트(최신연도가 하단).
  * 리스트는 무빙포스터와 같은 높이의 뷰포트 안에 있고, 선택된 연도 항목의 세로 중심이
  * 항상 그 뷰포트(=무빙포스터)의 세로 중앙에 오도록 translateY를 계산해서 맞춤.
  * Figma 실측 결과 선택 여부로 글자 크기나 굵기는 안 바뀌고(항상 ExtraBold, 항상 같은
@@ -52,6 +52,23 @@ export default function Phase2Timeline({ exhibitions }: Props) {
     const unmute = () => setHasInteracted(true);
     document.addEventListener("click", unmute, { once: true });
     return () => document.removeEventListener("click", unmute);
+  }, []);
+
+  // 무빙포스터는 Phase 2 화면에 들어왔을 때만 재생하고, 벗어나면 일시정지
+  // (영상 영역이 절반 이상 보이면 진입으로 봄). 다시 들어오면 멈춘 지점부터 이어서 재생
+  const videoBoxRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const box = videoBoxRef.current;
+    if (!box) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.5 },
+    );
+    observer.observe(box);
+    return () => observer.disconnect();
   }, []);
 
   const selected =
@@ -114,16 +131,28 @@ export default function Phase2Timeline({ exhibitions }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeYear, isDesktop, windowStart, windowEnd]);
 
+  // 화면 진입/이탈, 그리고 연도를 바꿔 새 영상이 들어왔을 때 재생 상태를 맞춤
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (inView) {
+      // 자동재생 정책 등으로 막히면 조용히 무시 (다음 진입이나 클릭 때 다시 시도)
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  }, [inView, selected?.movingPosterSrc]);
+
   // 1280부터 데스크탑(가로 배치), 그 전은 모바일과 같은 세로 구조
   return (
     <section className="flex flex-col items-center gap-6 px-6 py-24 min-[1280px]:flex-row min-[1280px]:items-start min-[1280px]:justify-center min-[1280px]:gap-20 min-[1280px]:px-[93px]">
       {/* Figma 실측: 467x660(1440), 513.7x725.2(1920), 317.3x448(모바일) — 전부 467:660 비율 */}
-      <div className={`relative aspect-[467/660] shrink-0 overflow-hidden bg-foreground/5 ${VIDEO_W}`}>
+      <div ref={videoBoxRef} className={`relative aspect-[467/660] shrink-0 overflow-hidden bg-foreground/5 ${VIDEO_W}`}>
         {selected?.movingPosterSrc ? (
           <video
             key={selected.movingPosterSrc}
+            ref={videoRef}
             src={selected.movingPosterSrc}
-            autoPlay
             loop
             muted={!hasInteracted}
             playsInline
