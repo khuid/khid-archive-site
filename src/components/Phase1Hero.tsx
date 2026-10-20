@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type React from "react";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/exhibitions";
+import InvitationViewer from "./InvitationViewer";
 
 type Props = {
   exhibitions: Exhibition[];
@@ -34,6 +35,19 @@ export default function Phase1Hero({ exhibitions }: Props) {
         animation.play();
       });
   }, []);
+
+  // 쌓이는 모션이 끝난 뒤 더미를 누르면 넘겨보기 열기 (모션 도중 누르면 무시).
+  // 열려 있는 동안 히어로 더미는 숨기고, 넘겨보기 카드가 더미 자리에서 펼쳐졌다가 닫힐 때 돌아옴
+  const [viewerOrigin, setViewerOrigin] = useState<DOMRect | null>(null);
+  const openViewer = () => {
+    const el = stackRef.current;
+    if (!el) return;
+    const stillStacking = el
+      .getAnimations({ subtree: true })
+      .some((animation) => animation.playState !== "finished");
+    if (stillStacking) return;
+    setViewerOrigin(el.getBoundingClientRect());
+  };
 
   // 다른 섹션으로 완전히 벗어났다가 Phase1으로 다시 돌아오면(30% 이상 보이면) 한 번 더 재생
   useEffect(() => {
@@ -67,19 +81,20 @@ export default function Phase1Hero({ exhibitions }: Props) {
     >
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
           모바일 구간은 360 × 배율, 1280~1439는 텍스트 칼럼(530)과 한 줄에 들어가도록 480 */}
-      {/* 초대장 영역을 누르면(또는 키보드 Enter/Space) 쌓이는 모션 다시 재생 */}
+      {/* 초대장 영역을 누르면(또는 키보드 Enter/Space) 넘겨보기 열기 */}
       <div
         ref={stackRef}
         role="button"
         tabIndex={0}
-        aria-label="초대장 쌓이는 모션 다시 보기"
-        onClick={replayStack}
+        aria-label="초대장 넘겨보기"
+        onClick={openViewer}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            replayStack();
+            openViewer();
           }
         }}
+        style={{ visibility: viewerOrigin ? "hidden" : undefined }}
         className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1280px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]"
       >
         {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 그대로 겹침.
@@ -176,6 +191,16 @@ export default function Phase1Hero({ exhibitions }: Props) {
           </div>
         )}
       </div>
+      {viewerOrigin && (
+        <InvitationViewer
+          exhibitions={exhibitions}
+          originRect={viewerOrigin}
+          onClosed={() => {
+            setViewerOrigin(null);
+            stackRef.current?.focus({ preventScroll: true });
+          }}
+        />
+      )}
     </section>
   );
 }
