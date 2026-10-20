@@ -148,7 +148,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
               <br />
               INFORMATION
             </p>
-            <div className="flex flex-col gap-[calc(12px*var(--s))] min-[1280px]:w-full text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1280px]:gap-3 min-[1280px]:text-[14px] min-[1920px]:gap-[13.2px]">
+            <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1280px]:gap-3 min-[1280px]:text-[14px] min-[1920px]:gap-[13.2px]">
               <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1280px]:gap-1 min-[1920px]:gap-[4.4px]">
                 <p className="font-sans">{cohort}th Graduation Exhibition</p>
                 <p className="font-sans font-semibold min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]">
@@ -156,7 +156,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                 </p>
               </div>
               {/* 연도별 키컬러(info.json keyColor) 글자 + 두꺼운 밑줄, hover 시 키컬러로 채움.
-                  글자는 왼쪽·화살표는 오른쪽 끝으로 벌려 정보 영역 폭을 꽉 채움 */}
+                  글자와 화살표 사이는 1em으로 고정 (1열·2열 레이아웃 모두 같은 비율) */}
               <a
                 href={latest.href}
                 style={
