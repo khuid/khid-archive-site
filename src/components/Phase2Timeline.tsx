@@ -210,7 +210,7 @@ export default function Phase2Timeline({ exhibitions }: Props) {
                     } as React.CSSProperties
                   }
                   className={`flex items-start text-right opacity-(--o) transition-[opacity,translate] duration-300 ease-out ${ROW_GAP} ${
-                    distance === 0 ? "cursor-default" : "cursor-pointer hover:-translate-x-2 hover:opacity-70"
+                    distance === 0 ? "cursor-default" : "cursor-pointer hover:-translate-x-2 hover:opacity-50"
                   }`}
                 >
                   <span
