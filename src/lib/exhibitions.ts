@@ -20,7 +20,7 @@ const EXHIBITIONS_DIR = path.join(process.cwd(), "public", "exhibitions");
 /**
  * Scans public/exhibitions/{year}/ folders and builds the exhibition list.
  * A new year is picked up automatically the moment its folder is added —
- * no code changes needed. See public/exhibitions/_template/ for the format.
+ * no code changes needed. See exhibition-template/ for the format.
  */
 export function getExhibitions(): Exhibition[] {
   if (!fs.existsSync(EXHIBITIONS_DIR)) return [];
