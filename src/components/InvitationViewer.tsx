@@ -36,7 +36,7 @@ const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(mi
  * 히어로 초대장 넘겨보기.
  * 왼쪽(오래된 연도) → 오른쪽(최신 연도)으로 같은 각도로 비스듬히 선 카드들이 한 줄로 서 있고,
  * 마우스(모바일은 손가락으로 쓸기)를 따라 묶음이 살짝 움직이며 가까운 카드가 조금 펴짐.
- * 카드를 누르면 정면으로 완전히 펴지며 크게, 한 번 더 누르면 VISIT WEB SITE 링크가 나타남.
+ * 카드를 누르면 정면으로 완전히 펴지며 크게, 펴지는 동시에 VISIT WEB SITE 링크도 나타남.
  * 바깥(어두운 부분)·ESC는 한 단계 뒤로, X는 바로 닫기. 열려 있는 동안 페이지 스크롤은 잠금.
  */
 export default function InvitationViewer({ exhibitions, originRect, onClosed }: Props) {
@@ -49,7 +49,6 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
   // 마우스·손가락이 가리키는 위치(카드 index 단위, 소수). null이면 아무 카드도 안 펴짐
   const [focus, setFocus] = useState<number | null>(null);
   const [pointerX, setPointerX] = useState<number | null>(null);
-  const [revealed, setRevealed] = useState(false);
   const [viewport, setViewport] = useState(() => ({
     w: window.innerWidth,
     h: window.innerHeight,
@@ -70,7 +69,6 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
   const linkGap = viewport.w >= 1280 ? 36 : 30; // 카드 아래 16 간격 + 링크 글자 높이
 
   const close = useCallback(() => {
-    setRevealed(false);
     setFocus(null);
     setPhase("exit");
     window.setTimeout(onClosed, MOTION_MS);
@@ -78,7 +76,6 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
 
   const back = useCallback(() => {
     if (stateRef.current.phase === "single") {
-      setRevealed(false);
       setPhase("row");
     } else if (stateRef.current.phase === "row") {
       close();
@@ -87,7 +84,6 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
 
   const select = useCallback((index: number) => {
     setSelected(index);
-    setRevealed(false);
     setFocus(null);
     setPhase("single");
   }, []);
@@ -136,7 +132,6 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
       } else if ((e.key === "Enter" || e.key === " ") && e.target === document.body) {
         e.preventDefault();
         if (ph === "row" && f !== null) select(Math.round(f));
-        else if (ph === "single") setRevealed(true);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -191,11 +186,8 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
       if (p.card === null) close();
       else select(p.card);
     } else if (ph === "single") {
-      if (p.card === selected) setRevealed(true);
-      else {
-        setRevealed(false);
-        setPhase("row");
-      }
+      // 펼친 카드를 누르면 그대로 유지, 바깥을 누르면 한 줄로 돌아감
+      if (p.card !== selected) setPhase("row");
     }
   };
 
@@ -295,13 +287,13 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
         </div>
       ))}
 
-      {/* 한 장 보기에서 카드를 한 번 더 누르면 나타남 — Phase 3 포스터의 VISIT WEB SITE와 같은 형식 */}
+      {/* 카드가 정면으로 펴질 때 같이 나타남(펴지는 모션 끝무렵에 페이드인) — Phase 3 포스터의 VISIT WEB SITE와 같은 형식 */}
       {active && (
         <a
           href={active.href}
-          tabIndex={phase === "single" && revealed && active.href ? 0 : -1}
+          tabIndex={phase === "single" && active.href ? 0 : -1}
           className={`absolute left-1/2 -translate-x-1/2 font-display text-[16px] leading-none font-light tracking-[-0.04em] whitespace-nowrap text-foreground underline underline-offset-4 transition-opacity duration-200 min-[1280px]:text-[20px] ${
-            phase === "single" && revealed && active.href ? "opacity-100" : "pointer-events-none opacity-0"
+            phase === "single" && active.href ? "opacity-100 delay-300" : "pointer-events-none opacity-0"
           }`}
           style={{ top: `calc(50% + ${singleSize / 2 - linkGap / 2 + 16}px)`, zIndex: 3000 }}
         >
