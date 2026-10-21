@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type React from "react";
 import type { Exhibition } from "@/lib/exhibitions";
+import MoreDots from "./MoreDots";
 
 type Props = {
   exhibitions: Exhibition[];
@@ -20,6 +21,9 @@ const ROW_GAP =
 // 세로 배치(모바일 구간)는 390 기준 32px, 768은 같은 비율(×0.8)로 48px
 const LIST_GAP =
   "gap-[32px] min-[768px]:gap-[48px] min-[1440px]:gap-[80px] min-[1920px]:gap-[88px]";
+// 말줄임 점과 가장 오래된 연도 사이 = 연도 사이 간격(LIST_GAP)과 동일
+const DOTS_BOTTOM =
+  "bottom-[calc(100%+32px)] min-[768px]:bottom-[calc(100%+48px)] min-[1440px]:bottom-[calc(100%+80px)] min-[1920px]:bottom-[calc(100%+88px)]";
 const LIST_WIDTH =
   "max-w-[297px] min-[768px]:max-w-[450px] min-[1440px]:max-w-[594px] min-[1920px]:max-w-[653px]";
 // 무빙포스터(467:660 비율) 각 폭(317/390/467/514)에 대응하는 실제 높이값 —
@@ -93,14 +97,17 @@ export default function Phase2Timeline({ exhibitions }: Props) {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // 세로 배치용 3개 창: 선택 연도 ±1, 양 끝 연도면 반대쪽으로 2개를 채움
+  // 세로 배치용 3개 창: 선택 연도 ±1, 최신 연도면 아래쪽으로 2개를 채움
   // (예: 최신 26 선택 → 24·25·26 / 중간 24 선택 → 23·24·25)
+  // 가장 오래된 23 선택 → 맨 위 칸은 비우고(말줄임 점 자리) 23·24만, 23이 가운데 칸
   const activeIndex = listOldestFirst.findIndex((ex) => ex.year === activeYear);
-  const windowStart = Math.max(
-    0,
-    Math.min(activeIndex - 1, listOldestFirst.length - 3),
-  );
-  const windowEnd = Math.min(listOldestFirst.length - 1, windowStart + 2);
+  const oldestSelected = activeIndex === 0 && listOldestFirst.length > 1;
+  const windowStart = oldestSelected
+    ? 0
+    : Math.max(0, Math.min(activeIndex - 1, listOldestFirst.length - 3));
+  const windowEnd = oldestSelected
+    ? 1
+    : Math.min(listOldestFirst.length - 1, windowStart + 2);
 
   const opacityForDistance = (distance: number) => {
     if (distance === 0) return 1;
@@ -124,8 +131,12 @@ export default function Phase2Timeline({ exhibitions }: Props) {
         const first = itemRefs.current[listOldestFirst[windowStart]?.year];
         const last = itemRefs.current[listOldestFirst[windowEnd]?.year];
         if (!first || !last) return;
-        const groupCenter =
-          (first.offsetTop + last.offsetTop + last.offsetHeight) / 2;
+        // 가장 오래된 연도 선택 시: 그 위에 같은 높이의 빈 칸이 하나 더 있다고 보고 묶음을 잡음
+        const listGap = last.offsetTop - (first.offsetTop + first.offsetHeight);
+        const groupTop = oldestSelected
+          ? first.offsetTop - listGap - first.offsetHeight
+          : first.offsetTop;
+        const groupCenter = (groupTop + last.offsetTop + last.offsetHeight) / 2;
         setOffset(viewport.clientHeight / 2 - groupCenter);
       }
     };
@@ -198,7 +209,17 @@ export default function Phase2Timeline({ exhibitions }: Props) {
                 ref={(el) => {
                   itemRefs.current[ex.year] = el;
                 }}
+                className="relative"
               >
+                {/* 가장 오래된 연도 위, 연도 사이 간격과 같은 거리에 세로 말줄임 — 선택과 무관하게 항상 흰색 30%,
+                    해당 연도 자체가 안 보이는 구간(opacity 0)에서만 같이 숨김 */}
+                {index === 0 && (
+                  <MoreDots
+                    direction="vertical"
+                    className={`absolute left-1/2 ${DOTS_BOTTOM} -translate-x-1/2 transition-opacity duration-300`}
+                    style={{ opacity: opacity === 0 ? 0 : 1 }}
+                  />
+                )}
                 {/* 선택 안 된 연도는 호버 시 진해지며 왼쪽으로 살짝 밀려 눌러볼 수 있는 버튼임을 보여줌 */}
                 <button
                   type="button"

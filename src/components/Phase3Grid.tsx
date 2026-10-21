@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/exhibitions";
+import MoreDots from "./MoreDots";
 
 type Props = {
   exhibitions: Exhibition[];
@@ -14,12 +15,16 @@ const CARD_W =
   "w-[296.8px] min-[768px]:w-[360px] min-[1440px]:w-[424px] min-[1920px]:w-[466px]";
 // 카드 간격: 모바일 구조(~1279) 8px, 데스크탑 24px(1920도 1440과 동일)
 const GAP = "gap-[8px] min-[1280px]:gap-[24px]";
+// 말줄임 프레임 = 좌우 24 + 점(5px×3, 간격 5 → 25) = 73.
+// 오른쪽은 프레임 여백 24 + 카드 간격(GAP: 8 / 24). 스크롤 끝에서 확실히 잡히도록 margin 대신 padding
+const END_PAD = "pr-[32px] min-[1280px]:pr-[48px]";
 // 600/520 = 1.1538...
 // 데스크탑 Component13(424×640) 기준 수치를 카드 폭 비율(--k)로 축소해서 씀.
 // Figma 모바일(Component 14~16): 296.8×448 = 정확히 0.7배 → 포스터 기본 top 28/높이 364,
 // 선택 시 top 0/높이 420, VISIT은 431.2 지점(포스터 아래 11.2), 글자 14px.
-// 768~1279(카드 360)는 360/424 ≈ 0.849배, 데스크탑(1280~)은 1배로 기존과 동일
-const SCALE = "[--k:0.7] min-[768px]:[--k:0.849] min-[1280px]:[--k:1]";
+// 768~1439(카드 360)는 360/424 ≈ 0.849배, 1440~(카드 424 이상)은 1배.
+// 1280~1439도 카드가 360이라 0.849로 줄여야 포스터가 폭에 막히지 않고 가운데 기준으로 커짐
+const SCALE = "[--k:0.7] min-[768px]:[--k:0.849] min-[1440px]:[--k:1]";
 
 /**
  * Phase 3 — 포스터 그리드(가로 스크롤 + 스냅, 카드 간격 모바일 8px / 데스크탑 24px).
@@ -70,7 +75,7 @@ export default function Phase3Grid({ exhibitions }: Props) {
                     className={`absolute inset-x-0 cursor-pointer transition-all duration-300 ease-out ${
                       isRevealed
                         ? "top-0 h-[calc(600px*var(--k))]"
-                        : "top-[calc(40px*var(--k))] h-[calc(520px*var(--k))] min-[1280px]:group-hover:top-0 min-[1280px]:group-hover:h-[600px]"
+                        : "top-[calc(40px*var(--k))] h-[calc(520px*var(--k))] min-[1280px]:group-hover:top-0 min-[1280px]:group-hover:h-[calc(600px*var(--k))]"
                     }`}
                   >
                     {ex.posterSrc ? (
@@ -102,6 +107,21 @@ export default function Phase3Grid({ exhibitions }: Props) {
             </li>
           );
         })}
+        {/* 맨 끝(가장 오래된 연도 다음)에 별도 프레임(좌우 24px + 점) — 가로 말줄임 점만 있고
+            호버·선택 인터랙션 없음. 새 연도는 왼쪽에 추가되므로 항상 맨 끝에 남음.
+            뒤에 카드 간격(GAP)만큼 여백을 더 둬서 점 오른쪽도 포스터 사이 간격과 같게 */}
+        {exhibitions.length > 0 && (
+          <li aria-hidden="true" className={`shrink-0 snap-end pl-[24px] ${END_PAD}`}>
+            {/* 포스터 카드와 같은 세로 구조(위 40 + 포스터 기본 자리 520)에서 정중앙 */}
+            <div className="py-[calc(40px*var(--k))]">
+              <div className="h-[calc(640px*var(--k))] pt-[calc(40px*var(--k))]">
+                <div className="flex h-[calc(520px*var(--k))] items-center">
+                  <MoreDots direction="horizontal" />
+                </div>
+              </div>
+            </div>
+          </li>
+        )}
       </ul>
     </section>
   );
