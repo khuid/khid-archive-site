@@ -3,5 +3,6 @@
   "titleEn": "Exhibition English Title",
   "openingDate": "2027-11-11 (수) 17:30",
   "venue": "경희대학교 국제캠퍼스 예술디자인대학 2층 A&D HALL",
-  "keyColor": "#1980FF"
+  "keyColor": "#1980FF",
+  "href": "https://example.com/2027"
 }

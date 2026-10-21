@@ -299,9 +299,9 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
       {active && (
         <a
           href={active.href}
-          tabIndex={phase === "single" && revealed ? 0 : -1}
+          tabIndex={phase === "single" && revealed && active.href ? 0 : -1}
           className={`absolute left-1/2 -translate-x-1/2 font-display text-[16px] leading-none font-light tracking-[-0.04em] whitespace-nowrap text-foreground underline underline-offset-4 transition-opacity duration-200 min-[1280px]:text-[20px] ${
-            phase === "single" && revealed ? "opacity-100" : "pointer-events-none opacity-0"
+            phase === "single" && revealed && active.href ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
           style={{ top: `calc(50% + ${singleSize / 2 - linkGap / 2 + 16}px)`, zIndex: 3000 }}
         >

@@ -51,6 +51,8 @@ export default function Phase3Grid({ exhibitions }: Props) {
       <ul className={`flex snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${GAP}`}>
         {exhibitions.map((ex) => {
           const isRevealed = revealedYear === ex.year;
+          // 온라인 전시 주소(href)가 있는 연도만 VISIT 링크를 보여줌
+          const showLink = isRevealed && !!ex.href;
           return (
             <li key={ex.year} className={`shrink-0 snap-start ${CARD_W}`}>
               <div
@@ -88,9 +90,9 @@ export default function Phase3Grid({ exhibitions }: Props) {
                   {/* 포스터(최대 600) + 16px 간격 지점에 고정 — 실제 이동 링크는 여기뿐 */}
                   <a
                     href={ex.href}
-                    tabIndex={isRevealed ? 0 : -1}
+                    tabIndex={showLink ? 0 : -1}
                     className={`absolute inset-x-0 top-[calc(616px*var(--k))] text-center font-display text-[length:calc(20px*var(--k))] leading-none font-light tracking-[-0.04em] text-foreground underline underline-offset-4 transition-opacity duration-200 ${
-                      isRevealed ? "opacity-100" : "pointer-events-none opacity-0"
+                      showLink ? "opacity-100" : "pointer-events-none opacity-0"
                     }`}
                   >
                     VISIT WEB SITE

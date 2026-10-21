@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type React from "react";
 import type { Exhibition } from "@/lib/exhibitions";
 
 type Props = {
@@ -198,11 +199,19 @@ export default function Phase2Timeline({ exhibitions }: Props) {
                   itemRefs.current[ex.year] = el;
                 }}
               >
+                {/* 선택 안 된 연도는 호버 시 진해지며 왼쪽으로 살짝 밀려 눌러볼 수 있는 버튼임을 보여줌 */}
                 <button
                   type="button"
                   onClick={() => setSelectedYear(ex.year)}
-                  style={{ opacity, pointerEvents: opacity === 0 ? "none" : undefined }}
-                  className={`flex items-start text-right transition-opacity duration-300 ${ROW_GAP}`}
+                  style={
+                    {
+                      "--o": opacity,
+                      pointerEvents: opacity === 0 ? "none" : undefined,
+                    } as React.CSSProperties
+                  }
+                  className={`flex items-start text-right opacity-(--o) transition-[opacity,translate] duration-300 ease-out ${ROW_GAP} ${
+                    distance === 0 ? "cursor-default" : "cursor-pointer hover:-translate-x-2 hover:opacity-70"
+                  }`}
                 >
                   <span
                     className={`font-display font-light leading-none text-foreground ${YEAR_TEXT}`}
