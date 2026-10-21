@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Phase1Hero from "@/components/Phase1Hero";
 import Phase2Timeline from "@/components/Phase2Timeline";
@@ -15,6 +16,7 @@ export default function Home() {
         <Phase2Timeline exhibitions={exhibitions} />
         <Phase3Grid exhibitions={exhibitions} />
       </main>
+      <Footer latestYear={exhibitions[0]?.year} />
     </>
   );
 }
