@@ -215,7 +215,7 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
     const flat = PILE_FLAT;
     if (phase === "enter" || phase === "exit") {
       return {
-        transform: `${base} translate(${originDx}px, ${originDy}px) scale(${originScale}) ${perspective} rotateY(0deg) ${pileTransform(cards[i].year, i === 0)}`,
+        transform: `${base} translate(${originDx}px, ${originDy}px) scale(${originScale}) ${perspective} rotateY(0deg) ${pileTransform(cards[i].year, i, count)}`,
         // 히어로 더미와 같게 최신 연도만 컬러
         filter: i === lastIndex ? "grayscale(0)" : "grayscale(1)",
         zIndex: i,

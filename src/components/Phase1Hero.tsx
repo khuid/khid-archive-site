@@ -99,7 +99,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
         className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1280px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]"
       >
         {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 겹침
-            (모든 연도에 연도별 기울기, 맨 아래 연도 위로는 95% 축소 — lib/pile.ts).
+            (오래된 연도부터 +/- 번갈아 기울기, 맨 아래·최신 사이 카드는 95% 축소 — lib/pile.ts).
             오래된 연도부터(23→24→25→26) 내려오며, 처음엔 빠르게·뒤로 갈수록 천천히 쌓임.
             내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지) */}
         {stack.map((ex, i) => {
@@ -119,7 +119,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
             >
               {ex.invitationSrc ? (
                 // 바깥 div는 쌓이는 모션(transform)이 쓰고 있어서, 기울기·축소는 안쪽에 따로 줌
-                <div className="absolute inset-0" style={{ transform: pileTransform(ex.year, i === 0) }}>
+                <div className="absolute inset-0" style={{ transform: pileTransform(ex.year, i, stack.length) }}>
                   <Image
                     src={ex.invitationSrc}
                     alt={`${ex.year} ${ex.titleKo} 초대장`}
