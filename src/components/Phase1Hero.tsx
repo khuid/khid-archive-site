@@ -153,7 +153,10 @@ export default function Phase1Hero({ exhibitions }: Props) {
         </div>
       </div>
 
-      <div className="flex w-full max-w-[calc(342*var(--m))] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
+      {/* 모바일: 텍스트를 위 초대장 카드의 실제 보이는 좌우 끝보다 4px씩 안쪽에 맞춤.
+          보이는 카드는 칸 폭의 -47.86% ~ +43.99%(가운데 기준, 2023 카드가 왼쪽으로 나와 있음)라
+          폭 = 칸 × 0.9185 − 8, 오른쪽 여백(칸 × 0.0387)으로 그만큼 왼쪽으로 옮김 */}
+      <div className="flex w-full max-w-[calc(min(360*var(--m),100%)*0.9185_-_8px)] mr-[calc(min(360*var(--m),100%)*0.0387)] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:mr-0 min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
         <div className="flex flex-col gap-[calc(16*var(--m))] min-[1024px]:gap-[calc(32*var(--u))] min-[1920px]:gap-[35.2px]">
           <div className="leading-none">
             <p className="font-display text-[length:calc(40*var(--m))] font-bold tracking-[-0.03em] text-muted min-[1024px]:text-[length:calc(80*var(--u))] min-[1920px]:text-[88px]">
@@ -179,8 +182,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
           // 2열일 때 두 열이 붙지 않도록 최소 간격 4(320) ~ 8(390~)
           <div className="flex items-start justify-between gap-x-[clamp(4px,calc((100vw_-_320px)/17.5_+_4px),8px)] whitespace-nowrap min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
             <p className="font-sans text-[length:calc(14*var(--m))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1024px]:text-[length:calc(21*var(--u))] min-[1920px]:text-[23.1px]">
-              {/* 모바일 2열은 한 줄, 두 열이 붙는 폭(~385)에서만 두 줄로 */}
-              UPCOMING <br className="min-[385px]:hidden" />
+              {/* 모바일 2열은 텍스트 칼럼이 카드보다 좁아서 항상 두 줄 */}
+              UPCOMING <br className="min-[1024px]:hidden" />
               EXHIBITION
             </p>
             <div className="flex flex-col gap-[calc(12*var(--m))] text-[length:calc(12*var(--m))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
