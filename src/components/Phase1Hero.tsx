@@ -72,7 +72,9 @@ export default function Phase1Hero({ exhibitions }: Props) {
     return () => observer.disconnect();
   }, [replayStack]);
 
-  // 레이아웃 기준: 1280부터 데스크탑(가로 배치), 그 전은 전부 모바일(Figma 390)과 같은 세로 구조.
+  // 레이아웃 기준: 1024부터 데스크탑(가로 배치), 그 전은 전부 모바일(Figma 390)과 같은 세로 구조.
+  // 데스크탑은 Figma 1440 값 × --u. 1024~1439는 --u = 화면 폭/1440이라 1440 시안을 그대로 줄인 비율이고
+  // (작은 글자는 12px 아래로 안 내려감), 1440~는 --u = 1px로 시안 그대로, 1920~는 따로 지정한 1.1배 값.
   // 모바일 구간은 Figma 모바일 실측값 × 배율(--s)로 통일해 화면이 커져도 같은 비율 유지:
   // 1(~639) → 1.25(640~) → 1.43(768~) → 1.55(1024~, 텍스트 칼럼이 데스크탑 폭 530에 도달).
   // 브레이크포인트를 전부 px로 쓴 이유: sm:/lg:(rem)와 min-[..px]를 섞으면 px 쪽이 먼저
@@ -80,11 +82,10 @@ export default function Phase1Hero({ exhibitions }: Props) {
   return (
     <section
       ref={sectionRef}
-      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1280px]:flex-row min-[1280px]:gap-[52px] min-[1280px]:px-[93px]"
+      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1024px]:flex-row min-[1024px]:gap-[calc(52*var(--u))] min-[1024px]:px-[calc(93*var(--u))] min-[1024px]:[--u:calc(100vw/1440)] min-[1440px]:[--u:1px]"
     >
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
-          모바일 구간은 360 × 배율. 1280~1439는 좌우 여백 99·간격 52·텍스트 530을 뺀 폭만큼(1280에서 500 → 1440에서 660)
-          늘어나게 해서, 텍스트 칼럼 옆에서 더미가 작아 보이지 않게 함 */}
+          모바일 구간은 360 × 배율, 1024~1439는 660 × 화면 폭/1440 */}
       {/* 초대장 영역을 누르면(또는 키보드 Enter/Space) 넘겨보기 열기 */}
       <div
         ref={stackRef}
@@ -99,16 +100,16 @@ export default function Phase1Hero({ exhibitions }: Props) {
           }
         }}
         style={{ visibility: viewerOrigin ? "hidden" : undefined }}
-        className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1280px]:max-w-[min(660px,calc(100vw_-_780px))] min-[1920px]:max-w-[726px]"
+        className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1024px]:max-w-[calc(660*var(--u))] min-[1920px]:max-w-[726px]"
       >
         {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 겹침
             (오래된 연도부터 +/- 번갈아 기울기, 맨 아래·최신 사이 카드는 95% 축소 — lib/pile.ts).
             오래된 연도부터(23→24→25→26) 내려오며, 처음엔 빠르게·뒤로 갈수록 천천히 쌓임.
             내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지).
-            데스크탑(가로 배치)은 Figma "이거" 프레임대로 칸 안에서 더미 전체를 87.8%로 줄이고 살짝 위로 */}
+            데스크탑(가로 배치, 1024~)은 Figma "이거" 프레임대로 칸 안에서 더미 전체를 87.8%로 줄이고 살짝 위로 */}
         <div
           ref={pileRef}
-          className="absolute inset-0 min-[1280px]:-translate-y-[0.95%] min-[1280px]:scale-[0.878]"
+          className="absolute inset-0 min-[1024px]:-translate-y-[0.95%] min-[1024px]:scale-[0.878]"
         >
           {stack.map((ex, i) => {
             const isLatest = i === stack.length - 1;
@@ -132,7 +133,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                       src={ex.invitationSrc}
                       alt={`${ex.year} ${ex.titleKo} 초대장`}
                       fill
-                      sizes="(min-width: 1920px) 726px, (min-width: 1280px) 660px, (min-width: 1024px) 558px, (min-width: 768px) 515px, (min-width: 640px) 450px, 360px"
+                      sizes="(min-width: 1920px) 726px, (min-width: 1024px) 660px, (min-width: 768px) 515px, (min-width: 640px) 450px, 360px"
                       className="object-contain"
                       priority={isLatest}
                     />
@@ -148,19 +149,19 @@ export default function Phase1Hero({ exhibitions }: Props) {
         </div>
       </div>
 
-      <div className="flex w-full max-w-[calc(342px*var(--s))] flex-col gap-[calc(52px*var(--s))] text-foreground min-[1280px]:max-w-[530px] min-[1280px]:gap-[116px] min-[1920px]:max-w-[583px] min-[1920px]:gap-[127.6px]">
-        <div className="flex flex-col gap-[calc(16px*var(--s))] min-[1280px]:gap-8 min-[1920px]:gap-[35.2px]">
+      <div className="flex w-full max-w-[calc(342px*var(--s))] flex-col gap-[calc(52px*var(--s))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(116*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[127.6px]">
+        <div className="flex flex-col gap-[calc(16px*var(--s))] min-[1024px]:gap-[calc(32*var(--u))] min-[1920px]:gap-[35.2px]">
           <div className="leading-none">
-            <p className="font-display text-[length:calc(40px*var(--s))] font-bold tracking-[-0.03em] text-muted min-[1280px]:text-[80px] min-[1920px]:text-[88px]">
+            <p className="font-display text-[length:calc(40px*var(--s))] font-bold tracking-[-0.03em] text-muted min-[1024px]:text-[length:calc(80*var(--u))] min-[1920px]:text-[88px]">
               KHID
             </p>
             {/* Figma 실측 폭 + 양쪽정렬(마지막 줄 포함): 280(모바일, 28px), 530(1440, 54px), 583(1920, 59.4px) */}
-            <p className="w-[calc(280px*var(--s))] max-w-full text-justify [text-align-last:justify] font-display text-[length:calc(28px*var(--s))] font-normal tracking-[-0.03em] min-[1280px]:w-[530px] min-[1280px]:text-[54px] min-[1920px]:w-[583px] min-[1920px]:text-[59.4px]">
+            <p className="w-[calc(280px*var(--s))] max-w-full text-justify [text-align-last:justify] font-display text-[length:calc(28px*var(--s))] font-normal tracking-[-0.03em] min-[1024px]:w-[calc(530*var(--u))] min-[1024px]:text-[length:calc(54*var(--u))] min-[1920px]:w-[583px] min-[1920px]:text-[59.4px]">
               ONLINE GRADUATION EXHIBITION ARCHIVE
             </p>
           </div>
-          {/* 640~1279는 아래 "35th ~" 줄(12px × 배율)과 같은 크기 */}
-          <p className="text-justify font-sans text-[length:calc(14px*var(--s))] leading-[1.3] tracking-[-0.04em] text-foreground min-[640px]:text-[length:calc(12px*var(--s))] min-[1280px]:w-[406px] min-[1280px]:max-w-full min-[1280px]:text-[14px] min-[1920px]:w-[446px] min-[1920px]:text-[15.342px]">
+          {/* 640~1023은 아래 "35th ~" 줄(12px × 배율)과 같은 크기 */}
+          <p className="text-justify font-sans text-[length:calc(14px*var(--s))] leading-[1.3] tracking-[-0.04em] text-foreground min-[640px]:text-[length:calc(12px*var(--s))] min-[1024px]:w-[calc(406*var(--u))] min-[1024px]:max-w-full min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:w-[446px] min-[1920px]:text-[15.342px]">
             An online archive of Kyung Hee University Industrial Design
             graduation exhibitions. The archive brings together works across
             product, spatial, UX/UI, and mobility design. It captures the
@@ -171,16 +172,16 @@ export default function Phase1Hero({ exhibitions }: Props) {
 
         {latest && (
           // Figma 모바일(67:7953): 좌측 제목 / 우측 정보 2열. 데스크탑은 세로 배치
-          <div className="flex items-start justify-between whitespace-nowrap min-[1280px]:flex-col min-[1280px]:justify-start min-[1280px]:gap-6 min-[1280px]:whitespace-normal min-[1920px]:gap-[26.4px]">
-            <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1280px]:text-[20px] min-[1920px]:text-[22px]">
+          <div className="flex items-start justify-between whitespace-nowrap min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
+            <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1024px]:text-[length:calc(20*var(--u))] min-[1920px]:text-[22px]">
               UPCOMING EXHIBITION
               <br />
               INFORMATION
             </p>
-            <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1280px]:gap-3 min-[1280px]:text-[14px] min-[1920px]:gap-[13.2px]">
-              <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1280px]:gap-1 min-[1920px]:gap-[4.4px]">
+            <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
+              <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1024px]:gap-[calc(4*var(--u))] min-[1920px]:gap-[4.4px]">
                 <p className="font-sans">{cohort}th Graduation Exhibition</p>
-                <p className="font-sans font-semibold min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]">
+                <p className="font-sans font-semibold min-[1024px]:text-[length:max(12px,calc(16*var(--u)))] min-[1920px]:text-[17.6px]">
                   &lt;{latest.titleEn || latest.titleKo}&gt;
                 </p>
               </div>
@@ -194,7 +195,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                     "--on-key": onKeyColor(latest.keyColor),
                   } as React.CSSProperties
                 }
-                className="group flex w-full items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.55em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1280px]:text-[16px] min-[1920px]:text-[17.6px]"
+                className="group flex w-full items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.55em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1024px]:text-[length:max(12px,calc(16*var(--u)))] min-[1920px]:text-[17.6px]"
               >
                 <span>VISIT {latest.year} ON-LINE EXHIBITION</span>
                 <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">
