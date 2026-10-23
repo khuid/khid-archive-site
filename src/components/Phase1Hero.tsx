@@ -153,8 +153,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
         </div>
       </div>
 
-      {/* 폭 500 이하: 텍스트를 위 초대장 카드(모바일에선 칸에 꼭 맞음)보다 좌우 4px씩 안쪽으로 */}
-      <div className="flex w-full max-w-[calc(342*var(--m))] max-[501px]:max-w-[calc(min(360*var(--m),100%)_-_8px)] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
+      {/* 폭 500 이하: 텍스트를 위 초대장 카드(모바일에선 칸에 꼭 맞음)보다 좌우 2px씩 안쪽으로 */}
+      <div className="flex w-full max-w-[calc(342*var(--m))] max-[501px]:max-w-[calc(min(360*var(--m),100%)_-_4px)] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
         <div className="flex flex-col gap-[calc(16*var(--m))] min-[1024px]:gap-[calc(32*var(--u))] min-[1920px]:gap-[35.2px]">
           <div className="leading-none">
             <p className="font-display text-[length:calc(40*var(--m))] font-bold tracking-[-0.03em] text-muted min-[1024px]:text-[length:calc(80*var(--u))] min-[1920px]:text-[88px]">
