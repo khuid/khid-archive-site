@@ -11,6 +11,8 @@ export type Exhibition = {
   keyColor?: string;
   posterSrc?: string;
   invitationSrc?: string;
+  /** 테이프·클립 등 사물을 뺀 종이만 있는 초대장. 넘겨보기에서 카드가 옆으로 서 있을 때 쓰임 */
+  invitationPlainSrc?: string;
   movingPosterSrc?: string;
   /** 온라인 전시 주소(info.json href). 없으면 VISIT 링크를 숨김 */
   href?: string;
@@ -60,6 +62,7 @@ export function getExhibitions(): Exhibition[] {
       posterSrc: firstExisting(dir, year, "poster", ["jpg", "jpeg", "png"]),
       // 초대장은 투명 배경 PNG(660 캔버스 2배)가 기준이라 png를 먼저 찾음
       invitationSrc: firstExisting(dir, year, "invitation", ["png", "jpg", "jpeg"]),
+      invitationPlainSrc: firstExisting(dir, year, "invitation-plain", ["png", "jpg", "jpeg"]),
       movingPosterSrc: firstExisting(dir, year, "moving-poster", ["mp4"]),
       href: /^https?:\/\//.test(info.href ?? "") ? info.href : undefined,
     };

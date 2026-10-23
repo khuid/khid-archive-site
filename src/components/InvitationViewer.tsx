@@ -266,29 +266,49 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
         style={{ opacity: phase === "enter" || phase === "exit" ? 0 : 1 }}
       />
 
-      {cards.map((ex, i) => (
-        <div
-          key={ex.year}
-          data-card={i}
-          className="absolute top-1/2 left-1/2 cursor-pointer will-change-transform"
-          style={{ width: size, height: size, transition, ...cardStyle(i) }}
-        >
-          {ex.invitationSrc ? (
-            <Image
-              src={ex.invitationSrc}
-              alt={`${ex.year} ${ex.titleKo} 초대장`}
-              fill
-              sizes="726px"
-              draggable={false}
-              className="pointer-events-none object-contain"
-            />
-          ) : (
-            <div className="flex size-full items-center justify-center bg-foreground/5 text-xs text-muted">
-              {ex.year}
-            </div>
-          )}
-        </div>
-      ))}
+      {cards.map((ex, i) => {
+        // 테이프·클립 같은 사물은 옆으로 선 카드에선 어색해서 종이만 보여주고,
+        // 더미 자리이거나 정면으로 펴졌을 때만 사물이 있는 초대장을 위에 겹쳐 보여줌 (펴지는 모션 끝무렵에 페이드인)
+        const facingFront = phase === "enter" || phase === "exit" || (phase === "single" && i === selected);
+        const showFull = !ex.invitationPlainSrc || facingFront;
+        return (
+          <div
+            key={ex.year}
+            data-card={i}
+            className="absolute top-1/2 left-1/2 cursor-pointer will-change-transform"
+            style={{ width: size, height: size, transition, ...cardStyle(i) }}
+          >
+            {ex.invitationSrc ? (
+              <>
+                {ex.invitationPlainSrc && (
+                  <Image
+                    src={ex.invitationPlainSrc}
+                    alt=""
+                    fill
+                    sizes="726px"
+                    draggable={false}
+                    className="pointer-events-none object-contain"
+                  />
+                )}
+                <Image
+                  src={ex.invitationSrc}
+                  alt={`${ex.year} ${ex.titleKo} 초대장`}
+                  fill
+                  sizes="726px"
+                  draggable={false}
+                  className={`pointer-events-none object-contain transition-opacity ${
+                    showFull ? "opacity-100" : "opacity-0"
+                  } ${showFull && phase === "single" ? "duration-200 delay-300" : "duration-300"}`}
+                />
+              </>
+            ) : (
+              <div className="flex size-full items-center justify-center bg-foreground/5 text-xs text-muted">
+                {ex.year}
+              </div>
+            )}
+          </div>
+        );
+      })}
 
       {/* 카드가 정면으로 펴질 때 같이 나타남(펴지는 모션 끝무렵에 페이드인) — Phase 3 포스터의 VISIT WEB SITE와 같은 형식 */}
       {active && (
