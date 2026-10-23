@@ -13,17 +13,17 @@ type Props = {
 // 포스터 세로값(기본 520 / 호버·선택 600)은 Figma Component 13 실측값을 아래 SCALE로 축소
 const CARD_W =
   "w-[296.8px] min-[768px]:w-[360px] min-[1440px]:w-[424px] min-[1920px]:w-[466px]";
-// 카드 간격: 모바일 구조(~1279) 8px, 데스크탑 24px(1920도 1440과 동일)
-const GAP = "gap-[8px] min-[1280px]:gap-[24px]";
+// 카드 간격: 모바일 구조(~1023) 8px, 데스크탑 24px(1920도 1440과 동일)
+const GAP = "gap-[8px] min-[1024px]:gap-[24px]";
 // 말줄임 프레임 = 좌우 24 + 점(5px×3, 간격 5 → 25) = 73.
 // 오른쪽은 프레임 여백 24 + 카드 간격(GAP: 8 / 24). 스크롤 끝에서 확실히 잡히도록 margin 대신 padding
-const END_PAD = "pr-[32px] min-[1280px]:pr-[48px]";
+const END_PAD = "pr-[32px] min-[1024px]:pr-[48px]";
 // 600/520 = 1.1538...
 // 데스크탑 Component13(424×640) 기준 수치를 카드 폭 비율(--k)로 축소해서 씀.
 // Figma 모바일(Component 14~16): 296.8×448 = 정확히 0.7배 → 포스터 기본 top 28/높이 364,
 // 선택 시 top 0/높이 420, VISIT은 431.2 지점(포스터 아래 11.2), 글자 14px.
 // 768~1439(카드 360)는 360/424 ≈ 0.849배, 1440~(카드 424 이상)은 1배.
-// 1280~1439도 카드가 360이라 0.849로 줄여야 포스터가 폭에 막히지 않고 가운데 기준으로 커짐
+// 1024~1439도 카드가 360이라 0.849로 줄여야 포스터가 폭에 막히지 않고 가운데 기준으로 커짐
 const SCALE = "[--k:0.7] min-[768px]:[--k:0.849] min-[1440px]:[--k:1]";
 
 /**
@@ -44,14 +44,14 @@ const SCALE = "[--k:0.7] min-[768px]:[--k:0.849] min-[1440px]:[--k:1]";
  * 링크 이동은 오직 "VISIT WEB SITE" 글자를 직접 눌렀을 때만 일어남 — 포스터 자체는
  * 절대 페이지 이동을 일으키지 않음.
  *
- * 데스크탑(≥1280, 마우스): 호버 시 확대(순수 CSS, 선택 여부와 무관).
- * 태블릿·모바일(<1280, 터치): 호버 없이 탭으로 바로 확대+"VISIT WEB SITE" 노출.
+ * 데스크탑(≥1024, 마우스): 호버 시 확대(순수 CSS, 선택 여부와 무관).
+ * 태블릿·모바일(<1024, 터치): 호버 없이 탭으로 바로 확대+"VISIT WEB SITE" 노출.
  */
 export default function Phase3Grid({ exhibitions }: Props) {
   const [revealedYear, setRevealedYear] = useState<number | null>(null);
 
   return (
-    <section className={`px-6 py-24 min-[1280px]:px-[93px] ${SCALE}`}>
+    <section className={`px-6 py-24 min-[1024px]:px-[93px] ${SCALE}`}>
       {/* 가로 스크롤은 유지하고 스크롤바만 숨김 (Firefox: scrollbar-width / Chrome·Safari: ::-webkit-scrollbar) */}
       <ul className={`flex snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${GAP}`}>
         {exhibitions.map((ex) => {
@@ -62,7 +62,7 @@ export default function Phase3Grid({ exhibitions }: Props) {
             <li key={ex.year} className={`shrink-0 snap-start ${CARD_W}`}>
               <div
                 className={`group relative block w-full py-[calc(40px*var(--k))] ${
-                  isRevealed ? "z-10" : "min-[1280px]:hover:z-10"
+                  isRevealed ? "z-10" : "min-[1024px]:hover:z-10"
                 }`}
               >
                 {/* 프레임: Component13 실측 424×640 × 카드 비율(--k) */}
@@ -75,7 +75,7 @@ export default function Phase3Grid({ exhibitions }: Props) {
                     className={`absolute inset-x-0 cursor-pointer transition-all duration-300 ease-out ${
                       isRevealed
                         ? "top-0 h-[calc(600px*var(--k))]"
-                        : "top-[calc(40px*var(--k))] h-[calc(520px*var(--k))] min-[1280px]:group-hover:top-0 min-[1280px]:group-hover:h-[calc(600px*var(--k))]"
+                        : "top-[calc(40px*var(--k))] h-[calc(520px*var(--k))] min-[1024px]:group-hover:top-0 min-[1024px]:group-hover:h-[calc(600px*var(--k))]"
                     }`}
                   >
                     {ex.posterSrc ? (

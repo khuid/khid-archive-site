@@ -28,10 +28,10 @@ const LIST_WIDTH =
   "max-w-[297px] min-[768px]:max-w-[450px] min-[1440px]:max-w-[594px] min-[1920px]:max-w-[653px]";
 // 무빙포스터(467:660 비율) 각 폭(317/390/467/514)에 대응하는 실제 높이값 —
 // 데스크탑에서는 이 높이를 리스트 뷰포트에도 그대로 써서 선택된 연도가 영상 세로 중앙에 오도록 함
-// 세로 배치(~1279)는 3개 항목만 보이므로 영상 높이 대신 3개 묶음에 맞춘 높이:
+// 세로 배치(~1023)는 3개 항목만 보이므로 영상 높이 대신 3개 묶음에 맞춘 높이:
 // 390 기준 172, 768은 글자 크기 비율(32→48, ×1.5)대로 258
 const VIEWPORT_H =
-  "h-[172px] min-[768px]:h-[258px] min-[1280px]:h-[551px] min-[1440px]:h-[660px] min-[1920px]:h-[726px]";
+  "h-[172px] min-[768px]:h-[258px] min-[1024px]:h-[551px] min-[1440px]:h-[660px] min-[1920px]:h-[726px]";
 const VIDEO_W = "w-[317px] min-[768px]:w-[390px] min-[1440px]:w-[467px] min-[1920px]:w-[514px]";
 
 // 무빙포스터 재생 볼륨 (0~1). 원본 음원이 커서 낮춰 재생 (2026은 특히 커서 더 낮춤)
@@ -87,10 +87,10 @@ export default function Phase2Timeline({ exhibitions }: Props) {
   // 오래된 연도 → 최신 연도 순으로 아래에서 위로 쌓이도록 표시
   const listOldestFirst = [...exhibitions].reverse();
 
-  // 1280부터 데스크탑(가로 배치). 세로 배치에서는 항상 연속된 3개만 보여줌
+  // 1024부터 데스크탑(가로 배치). 세로 배치에서는 항상 연속된 3개만 보여줌
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1280px)");
+    const mq = window.matchMedia("(min-width: 1024px)");
     const update = () => setIsDesktop(mq.matches);
     update();
     mq.addEventListener("change", update);
@@ -160,9 +160,10 @@ export default function Phase2Timeline({ exhibitions }: Props) {
     }
   }, [inView, selected?.movingPosterSrc, selected?.year]);
 
-  // 1280부터 데스크탑(가로 배치), 그 전은 모바일과 같은 세로 구조
+  // 1024부터 데스크탑(가로 배치), 그 전은 모바일과 같은 세로 구조.
+  // 1024~1279는 영상 390 + 간격 80 + 리스트 450에 여백 93을 더하면 넘쳐서 여백만 모바일과 같은 24로 두고, 1280부터 93
   return (
-    <section className="flex flex-col items-center gap-6 px-6 py-24 min-[1280px]:flex-row min-[1280px]:items-start min-[1280px]:justify-center min-[1280px]:gap-20 min-[1280px]:px-[93px]">
+    <section className="flex flex-col items-center gap-6 px-6 py-24 min-[1024px]:flex-row min-[1024px]:items-start min-[1024px]:justify-center min-[1024px]:gap-20 min-[1280px]:px-[93px]">
       {/* Figma 실측: 467x660(1440), 513.7x725.2(1920), 317.3x448(모바일) — 전부 467:660 비율 */}
       <div ref={videoBoxRef} className={`relative aspect-[467/660] shrink-0 overflow-hidden bg-foreground/5 ${VIDEO_W}`}>
         {selected?.movingPosterSrc ? (
@@ -191,7 +192,7 @@ export default function Phase2Timeline({ exhibitions }: Props) {
 
       <div ref={viewportRef} className={`relative w-full overflow-hidden ${LIST_WIDTH} ${VIEWPORT_H}`}>
         <ul
-          className={`absolute inset-x-0 top-0 flex w-full flex-col items-center text-right transition-transform min-[1280px]:items-end duration-500 ease-out ${LIST_GAP}`}
+          className={`absolute inset-x-0 top-0 flex w-full flex-col items-center text-right transition-transform min-[1024px]:items-end duration-500 ease-out ${LIST_GAP}`}
           style={{ transform: `translateY(${offset}px)` }}
         >
           {listOldestFirst.map((ex) => {
