@@ -176,17 +176,13 @@ export default function Phase1Hero({ exhibitions }: Props) {
           // 2열일 때 두 열이 붙지 않도록 최소 간격 4(320) ~ 8(390~)
           <div className="flex items-start justify-between gap-x-[clamp(4px,calc((100vw_-_320px)/17.5_+_4px),8px)] whitespace-nowrap min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
             <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1024px]:text-[length:calc(20*var(--u))] min-[1920px]:text-[22px]">
-              {/* 2열에서 원래 문구(330px + 최소 간격)가 안 들어가는 폭(~385)에서만 INFORMATION을 빼고 두 줄로 */}
-              <span className="max-[385px]:hidden">
-                UPCOMING EXHIBITION
-                <br />
-                INFORMATION
+              {/* 데스크탑은 예전 두 줄(…INFORMATION) 자리의 둘째 줄에 놓이도록 첫 줄을 비워둠.
+                  모바일 2열은 한 줄, 두 열이 붙는 폭(~385)에서만 두 줄로 */}
+              <span aria-hidden="true" className="hidden min-[1024px]:block">
+                &nbsp;
               </span>
-              <span className="hidden max-[385px]:inline">
-                UPCOMING
-                <br />
-                EXHIBITION
-              </span>
+              UPCOMING <br className="min-[385px]:hidden" />
+              EXHIBITION
             </p>
             <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
               <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1024px]:gap-[calc(4*var(--u))] min-[1920px]:gap-[4.4px]">
