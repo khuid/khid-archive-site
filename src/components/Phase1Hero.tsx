@@ -73,6 +73,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
   }, [replayStack]);
 
   // 레이아웃 기준: 1024부터 데스크탑(가로 배치), 그 전은 전부 모바일(Figma 390)과 같은 세로 구조.
+  // 데스크탑은 화면 높이 안에서 세로 가운데: 위 96(고정 헤더 56 + 40)·아래 40이라 헤더 아래 여백과 화면 아래 여백이 같아짐.
   // 데스크탑은 Figma 1440 값 × --u. 1024~1439는 --u = 화면 폭/1440이라 1440 시안을 그대로 줄인 비율이고
   // (작은 글자는 12px 아래로 안 내려감), 1440~는 --u = 1px로 시안 그대로, 1920~는 따로 지정한 1.1배 값.
   // 모바일 구간은 Figma 모바일 실측값 × 배율(--s)로 통일해 화면이 커져도 같은 비율 유지:
@@ -82,7 +83,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
   return (
     <section
       ref={sectionRef}
-      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1024px]:flex-row min-[1024px]:gap-[calc(52*var(--u))] min-[1024px]:px-[calc(93*var(--u))] min-[1024px]:[--u:calc(100vw/1440)] min-[1440px]:[--u:1px]"
+      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1024px]:flex-row min-[1024px]:gap-[calc(52*var(--u))] min-[1024px]:px-[calc(93*var(--u))] min-[1024px]:pb-10 min-[1024px]:[--u:calc(100vw/1440)] min-[1440px]:[--u:1px]"
     >
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
           모바일 구간은 360 × 배율, 1024~1439는 660 × 화면 폭/1440 */}
