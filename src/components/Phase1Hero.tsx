@@ -83,7 +83,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
       className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1280px]:flex-row min-[1280px]:gap-[52px] min-[1280px]:px-[93px]"
     >
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
-          모바일 구간은 360 × 배율, 1280~1439는 텍스트 칼럼(530)과 한 줄에 들어가도록 480 */}
+          모바일 구간은 360 × 배율. 1280~1439는 좌우 여백 99·간격 52·텍스트 530을 뺀 폭만큼(1280에서 500 → 1440에서 660)
+          늘어나게 해서, 텍스트 칼럼 옆에서 더미가 작아 보이지 않게 함 */}
       {/* 초대장 영역을 누르면(또는 키보드 Enter/Space) 넘겨보기 열기 */}
       <div
         ref={stackRef}
@@ -98,7 +99,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
           }
         }}
         style={{ visibility: viewerOrigin ? "hidden" : undefined }}
-        className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1280px]:max-w-[480px] min-[1440px]:max-w-[660px] min-[1920px]:max-w-[726px]"
+        className="relative aspect-square w-full max-w-[calc(360px*var(--s))] shrink-0 cursor-pointer min-[1280px]:max-w-[min(660px,calc(100vw_-_780px))] min-[1920px]:max-w-[726px]"
       >
         {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 겹침
             (오래된 연도부터 +/- 번갈아 기울기, 맨 아래·최신 사이 카드는 95% 축소 — lib/pile.ts).
@@ -131,7 +132,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                       src={ex.invitationSrc}
                       alt={`${ex.year} ${ex.titleKo} 초대장`}
                       fill
-                      sizes="(min-width: 1920px) 726px, (min-width: 1440px) 660px, (min-width: 1280px) 480px, (min-width: 1024px) 558px, (min-width: 768px) 515px, (min-width: 640px) 450px, 360px"
+                      sizes="(min-width: 1920px) 726px, (min-width: 1280px) 660px, (min-width: 1024px) 558px, (min-width: 768px) 515px, (min-width: 640px) 450px, 360px"
                       className="object-contain"
                       priority={isLatest}
                     />
