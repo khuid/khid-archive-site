@@ -48,7 +48,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
       .getAnimations({ subtree: true })
       .some((animation) => animation.playState !== "finished");
     if (stillStacking) return;
-    // 데스크탑에선 더미가 칸과 다른 크기로 그려지므로(아래 pileRef) 실제로 보이는 크기에서 펼쳐지게 함
+    // 더미가 칸과 다른 크기로 그려지므로(아래 pileRef) 실제로 보이는 크기에서 펼쳐지게 함
     setViewerOrigin((pileRef.current ?? el).getBoundingClientRect());
   };
 
@@ -106,10 +106,11 @@ export default function Phase1Hero({ exhibitions }: Props) {
             (오래된 연도부터 +/- 번갈아 기울기, 맨 아래·최신 사이 카드는 95% 축소 — lib/pile.ts).
             오래된 연도부터(23→24→25→26) 내려오며, 처음엔 빠르게·뒤로 갈수록 천천히 쌓임.
             내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지).
-            데스크탑(가로 배치, 1024~)은 Figma "이거" 프레임대로 칸 안에서 더미 전체를 87.8%로 줄이고 살짝 위로 */}
+            모든 화면에서 Figma "이거" 프레임대로 칸 안에서 더미 전체를 87.8%로 줄이고 살짝 위로 —
+            지난 연도 카드들이 칸 밖으로 삐져나오지 않고 전부 칸 안에 들어옴 */}
         <div
           ref={pileRef}
-          className="absolute inset-0 min-[1024px]:-translate-y-[0.95%] min-[1024px]:scale-[0.878]"
+          className="absolute inset-0 -translate-y-[0.95%] scale-[0.878]"
         >
           {stack.map((ex, i) => {
             const isLatest = i === stack.length - 1;
