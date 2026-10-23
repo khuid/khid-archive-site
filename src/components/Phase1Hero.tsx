@@ -78,13 +78,14 @@ export default function Phase1Hero({ exhibitions }: Props) {
   // (작은 글자는 12px 아래로 안 내려감), 1440~는 --u = 1px로 시안 그대로, 1920~는 따로 지정한 1.1배 값.
   // 모바일(~1023)은 Figma 모바일(390) 실측값 × --m(1px = 시안 그대로).
   // 콘텐츠 폭이 단계별로 고정되고(514~767: ×1.25, 768~1023: ×1.43) 좌우 여백만 줄어들다가,
-  // 여백이 32가 되는 514 아래로는 여백 24에 콘텐츠가 화면을 채우며 연속으로 줄어듦(390에서 시안 크기, 그 아래는 시안 그대로).
+  // 여백이 32가 되는 514 아래로는 콘텐츠가 450에서 시작해 390의 시안 크기(342)까지 화면과 함께 연속으로 줄어듦
+  // (--m을 1.25px → 1px로 직선 보간, 여백은 32 → 24). 그 아래는 시안 그대로.
   // 브레이크포인트를 전부 px로 쓴 이유: sm:/lg:(rem)와 min-[..px]를 섞으면 px 쪽이 먼저
   // 생성돼 순서가 꼬임(1920 값이 lg에 덮이는 문제가 있었음)
   return (
     <section
       ref={sectionRef}
-      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--m:1px] min-[390px]:[--m:calc((100vw_-_48px)/342)] min-[514px]:[--m:1.25px] min-[768px]:[--m:1.43px] min-[1024px]:flex-row min-[1024px]:gap-[calc(52*var(--u))] min-[1024px]:px-[calc(93*var(--u))] min-[1024px]:pb-10 min-[1024px]:[--u:calc(100vw/1440)] min-[1440px]:[--u:1px]"
+      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--m:1px] min-[390px]:[--m:calc(1px_+_(100vw_-_390px)*0.002016)] min-[514px]:[--m:1.25px] min-[768px]:[--m:1.43px] min-[1024px]:flex-row min-[1024px]:gap-[calc(52*var(--u))] min-[1024px]:px-[calc(93*var(--u))] min-[1024px]:pb-10 min-[1024px]:[--u:calc(100vw/1440)] min-[1440px]:[--u:1px]"
     >
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
           모바일 구간은 360 × --m, 1024~1439는 660 × 화면 폭/1440 */}
