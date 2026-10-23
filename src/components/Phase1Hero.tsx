@@ -26,6 +26,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
 
   const sectionRef = useRef<HTMLElement>(null);
   const stackRef = useRef<HTMLDivElement>(null);
+  const pileRef = useRef<HTMLDivElement>(null);
 
   // 쌓이는 모션 다시 재생: 각 카드의 CSS 애니메이션을 처음(delay 포함)부터 재시작
   const replayStack = useCallback(() => {
@@ -47,7 +48,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
       .getAnimations({ subtree: true })
       .some((animation) => animation.playState !== "finished");
     if (stillStacking) return;
-    setViewerOrigin(el.getBoundingClientRect());
+    // 데스크탑에선 더미가 칸보다 크게 그려지므로(아래 pileRef) 실제로 보이는 크기에서 펼쳐지게 함
+    setViewerOrigin((pileRef.current ?? el).getBoundingClientRect());
   };
 
   // 다른 섹션으로 완전히 벗어났다가 Phase1으로 다시 돌아오면(30% 이상 보이면) 한 번 더 재생
@@ -101,42 +103,46 @@ export default function Phase1Hero({ exhibitions }: Props) {
         {/* 초대장 PNG는 각자 회전·위치가 들어간 660 정사각 투명 캔버스라 같은 자리에 겹침
             (오래된 연도부터 +/- 번갈아 기울기, 맨 아래·최신 사이 카드는 95% 축소 — lib/pile.ts).
             오래된 연도부터(23→24→25→26) 내려오며, 처음엔 빠르게·뒤로 갈수록 천천히 쌓임.
-            내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지) */}
-        {stack.map((ex, i) => {
-          const isLatest = i === stack.length - 1;
-          const { delay, duration, grayAt } = timeline[i];
-          const animations = [
-            `stack-in ${duration}ms ${STACK_EASING} ${delay}ms both`,
-          ];
-          if (grayAt !== null) {
-            animations.push(`to-gray ${GRAY_FADE_MS}ms ease-out ${grayAt}ms both`);
-          }
-          return (
-            <div
-              key={ex.year}
-              className="absolute inset-0 will-change-transform"
-              style={{ zIndex: i, animation: animations.join(", ") }}
-            >
-              {ex.invitationSrc ? (
-                // 바깥 div는 쌓이는 모션(transform)이 쓰고 있어서, 기울기·축소는 안쪽에 따로 줌
-                <div className="absolute inset-0" style={{ transform: pileTransform(ex.year, i, stack.length) }}>
-                  <Image
-                    src={ex.invitationSrc}
-                    alt={`${ex.year} ${ex.titleKo} 초대장`}
-                    fill
-                    sizes="(min-width: 1920px) 726px, (min-width: 1440px) 660px, (min-width: 1280px) 480px, (min-width: 1024px) 558px, (min-width: 768px) 515px, (min-width: 640px) 450px, 360px"
-                    className="object-contain"
-                    priority={isLatest}
-                  />
-                </div>
-              ) : (
-                <div className="flex size-full items-center justify-center bg-foreground/5 text-xs text-muted">
-                  {ex.year}
-                </div>
-              )}
-            </div>
-          );
-        })}
+            내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지).
+            데스크탑(가로 배치)에선 가로 카드가 많아 옆 텍스트 칼럼보다 작아 보여서, 칸 크기는 그대로 두고 더미만 키움.
+            지난 연도 카드들이 왼쪽으로 나와 있어서 화면 왼쪽 끝에 붙지 않게 더미 전체를 오른쪽으로 2% 옮김 */}
+        <div ref={pileRef} className="absolute inset-0 min-[1280px]:translate-x-[2%] min-[1280px]:scale-[1.1]">
+          {stack.map((ex, i) => {
+            const isLatest = i === stack.length - 1;
+            const { delay, duration, grayAt } = timeline[i];
+            const animations = [
+              `stack-in ${duration}ms ${STACK_EASING} ${delay}ms both`,
+            ];
+            if (grayAt !== null) {
+              animations.push(`to-gray ${GRAY_FADE_MS}ms ease-out ${grayAt}ms both`);
+            }
+            return (
+              <div
+                key={ex.year}
+                className="absolute inset-0 will-change-transform"
+                style={{ zIndex: i, animation: animations.join(", ") }}
+              >
+                {ex.invitationSrc ? (
+                  // 바깥 div는 쌓이는 모션(transform)이 쓰고 있어서, 기울기·축소는 안쪽에 따로 줌
+                  <div className="absolute inset-0" style={{ transform: pileTransform(ex.year, i, stack.length) }}>
+                    <Image
+                      src={ex.invitationSrc}
+                      alt={`${ex.year} ${ex.titleKo} 초대장`}
+                      fill
+                      sizes="(min-width: 1920px) 726px, (min-width: 1440px) 660px, (min-width: 1280px) 480px, (min-width: 1024px) 558px, (min-width: 768px) 515px, (min-width: 640px) 450px, 360px"
+                      className="object-contain"
+                      priority={isLatest}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex size-full items-center justify-center bg-foreground/5 text-xs text-muted">
+                    {ex.year}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex w-full max-w-[calc(342px*var(--s))] flex-col gap-[calc(52px*var(--s))] text-foreground min-[1280px]:max-w-[530px] min-[1280px]:gap-[116px] min-[1920px]:max-w-[583px] min-[1920px]:gap-[127.6px]">
