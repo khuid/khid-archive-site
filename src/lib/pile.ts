@@ -8,7 +8,7 @@ const PILE_SCALE = 0.95;
 const PILE_ADJUST: Record<number, { scale?: number; y?: number }> = {
   2024: { scale: 0.98, y: 3 }, // 가로로 긴 어두운 카드라 위 카드들에 가려져서 키우고 아래로 내려 밑으로 보이게
   2025: { scale: 0.88 },
-  2026: { scale: 0.97, y: -2 },
+  2026: { scale: 0.97, y: -2 }, // 97%는 2027이 생겨 최신이 아니게 되면 적용
 };
 const PILE_MIN_TILT = 1;
 const PILE_MAX_TILT = 3;
@@ -23,6 +23,7 @@ export function pileTransform(year: number, index: number, count: number) {
   const isLatest = index === count - 1;
   const tilt = isLatest ? 0 : ((index % 2 === 0 ? 1 : -1) * Math.round(size * 10)) / 10;
   const adjust = PILE_ADJUST[year] ?? {};
-  const scale = adjust.scale ?? (index === 0 || isLatest ? 1 : PILE_SCALE);
+  // 최신 연도는 항상 100%. 연도별 크기 조정은 다음 해 카드가 올라와 최신이 아니게 된 뒤부터 적용
+  const scale = isLatest ? 1 : (adjust.scale ?? (index === 0 ? 1 : PILE_SCALE));
   return `translateY(${adjust.y ?? 0}%) rotate(${tilt}deg) scale(${scale})`;
 }
