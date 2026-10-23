@@ -10,8 +10,8 @@ const PILE_MAX_TILT = 3;
 // 최신 연도일 때는 y만 쓰고, 다음 해 카드가 올라와 최신이 아니게 되면 나머지 값도 적용
 const PILE_LAYOUT: Record<number, { scale?: number; x?: number; y?: number; tilt?: number }> = {
   2023: { scale: 1.109, x: -2.2, y: -0.1, tilt: 1 },
-  2024: { scale: 1.043, x: -5.8, y: -1, tilt: -2 },
-  2025: { scale: 1.019, x: 0, y: 1.6, tilt: 2 },
+  2024: { scale: 1.043, x: -4.2, y: -0.2, tilt: -2 },
+  2025: { scale: 1.019, x: 0, y: 1.6, tilt: 3 },
   2026: { scale: 0.97, y: -1.1, tilt: -1.3 },
 };
 
