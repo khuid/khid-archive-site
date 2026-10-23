@@ -38,7 +38,8 @@ const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(mi
  * 왼쪽(오래된 연도) → 오른쪽(최신 연도)으로 같은 각도로 비스듬히 선 카드들이 한 줄로 서 있고,
  * 마우스(모바일은 손가락으로 쓸기)를 따라 묶음이 살짝 움직이며 가까운 카드가 조금 펴짐.
  * 카드를 누르면 정면으로 완전히 펴지며 크게, 펴지는 동시에 VISIT WEB SITE 링크도 나타남.
- * 바깥(어두운 부분)·ESC는 한 단계 뒤로, X는 바로 닫기. 열려 있는 동안 페이지 스크롤은 잠금.
+ * 펼친 카드를 한 번 더 누르면 한 줄로 돌아가고, 바깥(어두운 부분)·X는 바로 닫기, ESC는 한 단계 뒤로.
+ * 열려 있는 동안 페이지 스크롤은 잠금.
  */
 export default function InvitationViewer({ exhibitions, originRect, onClosed }: Props) {
   const cards = [...exhibitions].reverse();
@@ -187,8 +188,9 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
       if (p.card === null) close();
       else select(p.card);
     } else if (ph === "single") {
-      // 펼친 카드를 누르면 그대로 유지, 바깥을 누르면 한 줄로 돌아감
-      if (p.card !== selected) setPhase("row");
+      // 펼친 카드를 한 번 더 누르면 한 줄로 돌아가고, 바깥을 누르면 넘겨보기를 닫고 원래 페이지로
+      if (p.card === selected) setPhase("row");
+      else close();
     }
   };
 
@@ -267,10 +269,8 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
       />
 
       {cards.map((ex, i) => {
-        // 테이프·클립 같은 사물은 옆으로 선 카드에선 어색해서 종이만 보여주고,
-        // 더미 자리이거나 정면으로 펴졌을 때만 사물이 있는 초대장을 위에 겹쳐 보여줌 (펴지는 모션 끝무렵에 페이드인)
-        const facingFront = phase === "enter" || phase === "exit" || (phase === "single" && i === selected);
-        const showFull = !ex.invitationPlainSrc || facingFront;
+        // 테이프·클립 같은 사물은 히어로 더미 자리에서만 보여주고, 넘겨보기(한 줄·한 장)에서는 종이만 보여줌
+        const showFull = !ex.invitationPlainSrc || phase === "enter" || phase === "exit";
         return (
           <div
             key={ex.year}
@@ -296,9 +296,9 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
                   fill
                   sizes="726px"
                   draggable={false}
-                  className={`pointer-events-none object-contain transition-opacity ${
+                  className={`pointer-events-none object-contain transition-opacity duration-300 ${
                     showFull ? "opacity-100" : "opacity-0"
-                  } ${showFull && phase === "single" ? "duration-200 delay-300" : "duration-300"}`}
+                  }`}
                 />
               </>
             ) : (
