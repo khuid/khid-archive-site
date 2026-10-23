@@ -175,7 +175,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
           // Figma 모바일(67:7953): 좌측 제목 / 우측 정보 2열. 데스크탑은 세로 배치.
           // 2열일 때 두 열이 붙지 않도록 최소 간격 4(320) ~ 8(390~)
           <div className="flex items-start justify-between gap-x-[clamp(4px,calc((100vw_-_320px)/17.5_+_4px),8px)] whitespace-nowrap min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
-            <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1024px]:text-[length:calc(20*var(--u))] min-[1920px]:text-[22px]">
+            <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1024px]:text-[length:calc(21*var(--u))] min-[1920px]:text-[23.1px]">
               {/* 데스크탑은 예전 두 줄(…INFORMATION) 자리의 둘째 줄에 놓이도록 첫 줄을 비워둠.
                   모바일 2열은 한 줄, 두 열이 붙는 폭(~385)에서만 두 줄로 */}
               <span aria-hidden="true" className="hidden min-[1024px]:block">
