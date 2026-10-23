@@ -4,10 +4,9 @@
 // 새 연도가 추가되면 직전 최신 연도도 자기 기울기를 받음 (예: 2027이 생기면 2026은 -1.3°)
 const PILE_SCALE = 0.95;
 // 카드 크기·모양이 해마다 달라서 기본값으로는 너무 가려지거나 튀는 연도만 따로 조정.
-// scale: 크기 배율, y: 세로 이동(더미 칸 높이 대비 %, +는 아래), tilt: 원래 기울어진 방향으로 더할 각도(°),
-// flip: 번갈아 기울이는 규칙과 반대 방향으로 기울임
-const PILE_ADJUST: Record<number, { scale?: number; y?: number; tilt?: number; flip?: boolean }> = {
-  2023: { scale: 1.03, y: -2, tilt: 1, flip: true },
+// scale: 크기 배율, y: 세로 이동(더미 칸 높이 대비 %, +는 아래), tilt: 원래 기울어진 방향으로 더할 각도(°)
+const PILE_ADJUST: Record<number, { scale?: number; y?: number; tilt?: number }> = {
+  2023: { scale: 1.03, y: -2, tilt: 1 },
   2024: { scale: 0.98, y: 3 }, // 가로로 긴 어두운 카드라 위 카드들에 가려져서 키우고 아래로 내려 밑으로 보이게
   2025: { scale: 0.88 },
   2026: { scale: 0.97, y: -2 }, // 97%는 2027이 생겨 최신이 아니게 되면 적용
@@ -24,8 +23,7 @@ export function pileTransform(year: number, index: number, count: number) {
   const size = PILE_MIN_TILT + (x - Math.floor(x)) * (PILE_MAX_TILT - PILE_MIN_TILT);
   const isLatest = index === count - 1;
   const adjust = PILE_ADJUST[year] ?? {};
-  const direction = (index % 2 === 0 ? 1 : -1) * (adjust.flip ? -1 : 1);
-  const tilt = isLatest ? 0 : (direction * Math.round((size + (adjust.tilt ?? 0)) * 10)) / 10;
+  const tilt = isLatest ? 0 : ((index % 2 === 0 ? 1 : -1) * Math.round((size + (adjust.tilt ?? 0)) * 10)) / 10;
   // 최신 연도는 항상 100%. 연도별 크기 조정은 다음 해 카드가 올라와 최신이 아니게 된 뒤부터 적용
   const scale = isLatest ? 1 : (adjust.scale ?? (index === 0 ? 1 : PILE_SCALE));
   return `translateY(${adjust.y ?? 0}%) rotate(${tilt}deg) scale(${scale})`;
