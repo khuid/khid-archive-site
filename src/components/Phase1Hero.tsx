@@ -48,7 +48,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
       .getAnimations({ subtree: true })
       .some((animation) => animation.playState !== "finished");
     if (stillStacking) return;
-    // 데스크탑에선 더미가 칸보다 크게 그려지므로(아래 pileRef) 실제로 보이는 크기에서 펼쳐지게 함
+    // 데스크탑에선 더미가 칸과 다른 크기로 그려지므로(아래 pileRef) 실제로 보이는 크기에서 펼쳐지게 함
     setViewerOrigin((pileRef.current ?? el).getBoundingClientRect());
   };
 
@@ -80,7 +80,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
   return (
     <section
       ref={sectionRef}
-      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1280px]:flex-row min-[1280px]:gap-[68px] min-[1280px]:px-[93px]"
+      className="flex min-h-screen flex-col items-center justify-center gap-10 px-6 pt-24 pb-16 [--s:1] min-[640px]:[--s:1.25] min-[768px]:[--s:1.43] min-[1024px]:[--s:1.55] min-[1280px]:flex-row min-[1280px]:gap-[52px] min-[1280px]:px-[93px]"
     >
       {/* Figma 실측: 360×360(모바일), 660×660(1440), 726×726(1920) — 전부 정방형.
           모바일 구간은 360 × 배율, 1280~1439는 텍스트 칼럼(530)과 한 줄에 들어가도록 480 */}
@@ -104,9 +104,11 @@ export default function Phase1Hero({ exhibitions }: Props) {
             (오래된 연도부터 +/- 번갈아 기울기, 맨 아래·최신 사이 카드는 95% 축소 — lib/pile.ts).
             오래된 연도부터(23→24→25→26) 내려오며, 처음엔 빠르게·뒤로 갈수록 천천히 쌓임.
             내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지).
-            데스크탑(가로 배치)에선 가로 카드가 많아 옆 텍스트 칼럼보다 작아 보여서, 칸 크기는 그대로 두고 더미만 키움.
-            지난 연도 카드들이 왼쪽으로 나와 있어서 화면 왼쪽 끝에 붙지 않게 더미 전체를 오른쪽으로 2% 옮김 */}
-        <div ref={pileRef} className="absolute inset-0 min-[1280px]:translate-x-[2%] min-[1280px]:scale-[1.1]">
+            데스크탑(가로 배치)은 Figma "이거" 프레임대로 칸 안에서 더미 전체를 87.8%로 줄이고 살짝 위로 */}
+        <div
+          ref={pileRef}
+          className="absolute inset-0 min-[1280px]:-translate-y-[0.95%] min-[1280px]:scale-[0.878]"
+        >
           {stack.map((ex, i) => {
             const isLatest = i === stack.length - 1;
             const { delay, duration, grayAt } = timeline[i];
