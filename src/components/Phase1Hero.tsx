@@ -150,7 +150,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
         </div>
       </div>
 
-      <div className="flex w-full max-w-[calc(342px*var(--s))] flex-col gap-[calc(46.6px*var(--s))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(104*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[114.4px]">
+      <div className="flex w-full max-w-[calc(342px*var(--s))] flex-col gap-[calc(46.6px*var(--s))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(92*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[101.2px]">
         <div className="flex flex-col gap-[calc(16px*var(--s))] min-[1024px]:gap-[calc(32*var(--u))] min-[1920px]:gap-[35.2px]">
           <div className="leading-none">
             <p className="font-display text-[length:calc(40px*var(--s))] font-bold tracking-[-0.03em] text-muted min-[1024px]:text-[length:calc(80*var(--u))] min-[1920px]:text-[88px]">
