@@ -5,6 +5,7 @@ import type React from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/exhibitions";
+import { PILE_FLAT, pileTransform } from "@/lib/pile";
 
 type Props = {
   exhibitions: Exhibition[];
@@ -210,9 +211,11 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
 
   const cardStyle = (i: number): React.CSSProperties => {
     const base = "translate(-50%, -50%)";
+    // 더미 자리에서는 히어로와 같은 기울기·축소, 펼쳐지면 똑바로 (함수 목록을 맞춰야 부드럽게 이어짐)
+    const flat = PILE_FLAT;
     if (phase === "enter" || phase === "exit") {
       return {
-        transform: `${base} translate(${originDx}px, ${originDy}px) scale(${originScale}) ${perspective} rotateY(0deg)`,
+        transform: `${base} translate(${originDx}px, ${originDy}px) scale(${originScale}) ${perspective} rotateY(0deg) ${pileTransform(cards[i].year, i === 0)}`,
         // 히어로 더미와 같게 최신 연도만 컬러
         filter: i === lastIndex ? "grayscale(0)" : "grayscale(1)",
         zIndex: i,
@@ -220,7 +223,7 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
     }
     if (phase === "single" && i === selected) {
       return {
-        transform: `${base} translateY(${-linkGap / 2}px) scale(${singleSize / size}) ${perspective} rotateY(0deg)`,
+        transform: `${base} translateY(${-linkGap / 2}px) scale(${singleSize / size}) ${perspective} rotateY(0deg) ${flat}`,
         filter: "grayscale(0)",
         zIndex: 2000,
       };
@@ -231,7 +234,7 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
     const x = (i - lastIndex / 2) * gap + parallax + push;
     const angle = ROW_ANGLE - openness(i) * HOVER_OPEN;
     return {
-      transform: `${base} translateX(${x}px) ${perspective} rotateY(${angle}deg)`,
+      transform: `${base} translateX(${x}px) ${perspective} rotateY(${angle}deg) ${flat}`,
       filter: "grayscale(0)",
       zIndex: i,
       ...(phase === "single" ? { opacity: 0, pointerEvents: "none" as const } : {}),
