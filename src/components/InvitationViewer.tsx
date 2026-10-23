@@ -68,7 +68,7 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
   const size = Math.min(viewport.h * 0.6, 600, (viewport.w * 0.88) / rowWidthFactor);
   const singleSize = Math.min(viewport.h * 0.72, viewport.w * 0.92, 726);
   const gap = size * ROW_GAP;
-  const linkGap = viewport.w >= 1280 ? 36 : 30; // 카드 아래 16 간격 + 링크 글자 높이
+  const linkGap = viewport.w >= 1024 ? 36 : 30; // 카드 아래 16 간격 + 링크 글자 높이
 
   const close = useCallback(() => {
     setFocus(null);
@@ -315,7 +315,7 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
         <a
           href={active.href}
           tabIndex={phase === "single" && active.href ? 0 : -1}
-          className={`absolute left-1/2 -translate-x-1/2 font-display text-[16px] leading-none font-light tracking-[-0.04em] whitespace-nowrap text-foreground underline underline-offset-4 transition-opacity duration-200 min-[1280px]:text-[20px] ${
+          className={`absolute left-1/2 -translate-x-1/2 font-display text-[16px] leading-none font-light tracking-[-0.04em] whitespace-nowrap text-foreground underline underline-offset-4 transition-opacity duration-200 min-[1024px]:text-[20px] ${
             phase === "single" && active.href ? "opacity-100 delay-300" : "pointer-events-none opacity-0"
           }`}
           style={{ top: `calc(50% + ${singleSize / 2 - linkGap / 2 + 16}px)`, zIndex: 3000 }}
@@ -329,7 +329,7 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
         type="button"
         aria-label="닫기"
         onClick={close}
-        className="absolute top-3 right-3 z-[4000] flex size-11 items-center justify-center text-foreground transition-opacity duration-300 min-[1280px]:top-6 min-[1280px]:right-6"
+        className="absolute top-3 right-3 z-[4000] flex size-11 items-center justify-center text-foreground transition-opacity duration-300 min-[1024px]:top-6 min-[1024px]:right-6"
         style={{ opacity: phase === "enter" || phase === "exit" ? 0 : 1 }}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
