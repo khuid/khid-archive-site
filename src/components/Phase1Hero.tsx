@@ -172,12 +172,21 @@ export default function Phase1Hero({ exhibitions }: Props) {
         </div>
 
         {latest && (
-          // Figma 모바일(67:7953): 좌측 제목 / 우측 정보 2열. 데스크탑은 세로 배치
-          <div className="flex items-start justify-between whitespace-nowrap min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
+          // Figma 모바일(67:7953): 좌측 제목 / 우측 정보 2열. 데스크탑은 세로 배치.
+          // 2열일 때 두 열이 붙지 않도록 최소 간격 4(320) ~ 8(390~)
+          <div className="flex items-start justify-between gap-x-[clamp(4px,calc((100vw_-_320px)/17.5_+_4px),8px)] whitespace-nowrap min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
             <p className="font-sans text-[length:calc(14px*var(--s))] font-semibold leading-[1.3] tracking-[-0.04em] min-[1024px]:text-[length:calc(20*var(--u))] min-[1920px]:text-[22px]">
-              UPCOMING EXHIBITION
-              <br />
-              INFORMATION
+              {/* 모바일 2열은 폭이 좁아서 INFORMATION을 빼고 두 줄로 */}
+              <span className="min-[1024px]:hidden">
+                UPCOMING
+                <br />
+                EXHIBITION
+              </span>
+              <span className="hidden min-[1024px]:inline">
+                UPCOMING EXHIBITION
+                <br />
+                INFORMATION
+              </span>
             </p>
             <div className="flex flex-col gap-[calc(12px*var(--s))] text-[length:calc(12px*var(--s))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
               <div className="flex flex-col gap-[calc(2px*var(--s))] min-[1024px]:gap-[calc(4*var(--u))] min-[1920px]:gap-[4.4px]">
