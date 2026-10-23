@@ -109,11 +109,11 @@ export default function Phase1Hero({ exhibitions }: Props) {
             (오래된 연도부터 +/- 번갈아 기울기, 맨 아래·최신 사이 카드는 95% 축소 — lib/pile.ts).
             오래된 연도부터(23→24→25→26) 내려오며, 처음엔 빠르게·뒤로 갈수록 천천히 쌓임.
             내려오는 동안은 컬러, 다음 연도 카드가 위에 내려앉으면 회색조로 바뀜 (최신 연도는 컬러 유지).
-            모든 화면에서 Figma "이거" 프레임대로 칸 안에서 더미 전체를 87.8%로 줄이고 살짝 위로 —
-            지난 연도 카드들이 칸 밖으로 삐져나오지 않고 전부 칸 안에 들어옴 */}
+            데스크탑은 Figma "이거" 프레임대로 칸 안에서 더미 전체를 87.8%로 줄이고 살짝 위로.
+            모바일은 카드 4장이 보이는 끝까지 정방형 칸에 꼭 맞게 95.68%로 줄이고 가운데로(오른쪽 2.14%, 위 0.56%) */}
         <div
           ref={pileRef}
-          className="absolute inset-0 -translate-y-[0.95%] scale-[0.878]"
+          className="absolute inset-0 translate-x-[2.14%] -translate-y-[0.56%] scale-[0.9568] min-[1024px]:translate-x-0 min-[1024px]:-translate-y-[0.95%] min-[1024px]:scale-[0.878]"
         >
           {stack.map((ex, i) => {
             const isLatest = i === stack.length - 1;
@@ -153,10 +153,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
         </div>
       </div>
 
-      {/* 폭 500 이하: 텍스트를 위 초대장 카드의 실제 보이는 좌우 끝보다 4px씩 안쪽에 맞춤.
-          보이는 카드는 칸 폭의 -47.86% ~ +43.99%(가운데 기준, 2023 카드가 왼쪽으로 나와 있음)라
-          폭 = 칸 × 0.9185 − 8, 오른쪽 여백(칸 × 0.0387)으로 그만큼 왼쪽으로 옮김 */}
-      <div className="flex w-full max-w-[calc(342*var(--m))] max-[501px]:max-w-[calc(min(360*var(--m),100%)*0.9185_-_8px)] max-[501px]:mr-[calc(min(360*var(--m),100%)*0.0387)] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
+      {/* 폭 500 이하: 텍스트를 위 초대장 카드(모바일에선 칸에 꼭 맞음)보다 좌우 4px씩 안쪽으로 */}
+      <div className="flex w-full max-w-[calc(342*var(--m))] max-[501px]:max-w-[calc(min(360*var(--m),100%)_-_8px)] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
         <div className="flex flex-col gap-[calc(16*var(--m))] min-[1024px]:gap-[calc(32*var(--u))] min-[1920px]:gap-[35.2px]">
           <div className="leading-none">
             <p className="font-display text-[length:calc(40*var(--m))] font-bold tracking-[-0.03em] text-muted min-[1024px]:text-[length:calc(80*var(--u))] min-[1920px]:text-[88px]">
