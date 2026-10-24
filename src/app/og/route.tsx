@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { getLatestExhibition, LINK_PREVIEW_SIZE } from "@/lib/exhibitions";
 
@@ -13,10 +13,11 @@ const BACKGROUND = "#121212";
 // 초대장 PNG(정사각형, 바깥 투명 여백 포함)를 그릴 한 변 길이. 위아래 여백 15px씩
 const INVITATION_SIZE = 600;
 
-export async function GET() {
+// 파일을 동기로 읽어야 빌드 때 정적 이미지로 미리 만들어짐(비동기로 읽으면 요청마다 새로 그림)
+export function GET() {
   const latest = getLatestExhibition();
   const invitationSrc = latest?.invitationSrc
-    ? `data:image/${latest.invitationSrc.endsWith(".png") ? "png" : "jpeg"};base64,${await readFile(
+    ? `data:image/${latest.invitationSrc.endsWith(".png") ? "png" : "jpeg"};base64,${readFileSync(
         join(process.cwd(), "public", latest.invitationSrc),
         "base64",
       )}`
