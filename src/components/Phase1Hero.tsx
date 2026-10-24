@@ -178,11 +178,14 @@ export default function Phase1Hero({ exhibitions }: Props) {
 
         {latest && (
           // Figma 모바일(67:7953): 좌측 제목 / 우측 정보 2열. 데스크탑은 세로 배치.
-          // 2열일 때 두 열 사이 간격 고정: 514~ 18, 514 미만(버튼 글자가 짧아짐) 12. 오른쪽 열은 콘텐츠 끝까지 채움
-          <div className="flex items-start gap-x-3 whitespace-nowrap min-[514px]:gap-x-[18px] min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
-            {/* 한 줄로 들어가면 한 줄, 오른쪽 정보와 간격까지 좁아지면 저절로 두 줄(UPCOMING / EXHIBITION) */}
+          // 2열일 때 두 열 사이 간격 고정: 514~ 18, 514 미만(버튼 글자가 짧아짐) 12,
+          // 350 미만(UPCOMING이 두 줄이 되는 폭)은 20. 오른쪽 열은 콘텐츠 끝까지 채움
+          <div className="flex items-start gap-x-3 whitespace-nowrap max-[350px]:gap-x-5 min-[514px]:gap-x-[18px] min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
+            {/* 한 줄로 들어가면 한 줄, 350 미만에선 줄바꿈을 직접 넣어 두 줄(UPCOMING / EXHIBITION) —
+                저절로 꺾이게 두면 글자 상자가 넓게 남아 오른쪽 열과 간격이 벌어짐 */}
             <p className="min-w-0 font-sans text-[length:calc(14*var(--m))] font-semibold leading-[1.3] tracking-[-0.04em] whitespace-normal min-[1024px]:text-[length:calc(21*var(--u))] min-[1920px]:text-[23.1px]">
-              UPCOMING EXHIBITION
+              UPCOMING <br className="hidden max-[350px]:inline" />
+              EXHIBITION
             </p>
             <div className="flex flex-1 flex-col gap-[calc(12*var(--m))] min-[1024px]:flex-none text-[length:calc(12*var(--m))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
               <div className="flex flex-col gap-[calc(2*var(--m))] min-[1024px]:gap-[calc(4*var(--u))] min-[1920px]:gap-[4.4px]">
