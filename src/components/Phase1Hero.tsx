@@ -153,8 +153,9 @@ export default function Phase1Hero({ exhibitions }: Props) {
         </div>
       </div>
 
-      {/* 폭 500 이하: 텍스트를 위 초대장 카드(모바일에선 칸에 꼭 맞음)보다 좌우 2px씩 안쪽으로 */}
-      <div className="flex w-full max-w-[calc(342*var(--m))] max-[501px]:max-w-[calc(min(360*var(--m),100%)_-_4px)] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
+      {/* 폭 500 이하: 텍스트를 위 초대장 카드(모바일에선 칸에 꼭 맞음)보다 좌우 2px씩 안쪽으로.
+          514~1023: 시안 폭 + 4px (UPCOMING EXHIBITION 한 줄 + 오른쪽 열 간격 18이 들어가게) */}
+      <div className="flex w-full max-w-[calc(342*var(--m))] max-[501px]:max-w-[calc(min(360*var(--m),100%)_-_4px)] min-[514px]:max-w-[calc(342*var(--m)_+_4px)] flex-col gap-[calc(46.6*var(--m))] text-foreground min-[1024px]:max-w-[calc(530*var(--u))] min-[1024px]:gap-[calc(112*var(--u))] min-[1920px]:max-w-[583px] min-[1920px]:gap-[123.2px]">
         <div className="flex flex-col gap-[calc(16*var(--m))] min-[1024px]:gap-[calc(32*var(--u))] min-[1920px]:gap-[35.2px]">
           <div className="leading-none">
             <p className="font-display text-[length:calc(40*var(--m))] font-bold tracking-[-0.03em] text-muted min-[1024px]:text-[length:calc(80*var(--u))] min-[1920px]:text-[88px]">
@@ -177,13 +178,13 @@ export default function Phase1Hero({ exhibitions }: Props) {
 
         {latest && (
           // Figma 모바일(67:7953): 좌측 제목 / 우측 정보 2열. 데스크탑은 세로 배치.
-          // 2열일 때 두 열 사이 최소 간격 4 — 제목이 최대한 한 줄로 보이게
-          <div className="flex items-start justify-between gap-x-1 whitespace-nowrap min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
-            {/* 한 줄로 들어가면 한 줄, 오른쪽 정보와 최소 간격까지 좁아지면 저절로 두 줄(UPCOMING / EXHIBITION) */}
+          // 2열일 때 두 열 사이 간격 고정: 514~ 18, 514 미만(버튼 글자가 짧아짐) 12. 오른쪽 열은 콘텐츠 끝까지 채움
+          <div className="flex items-start gap-x-3 whitespace-nowrap min-[514px]:gap-x-[18px] min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
+            {/* 한 줄로 들어가면 한 줄, 오른쪽 정보와 간격까지 좁아지면 저절로 두 줄(UPCOMING / EXHIBITION) */}
             <p className="min-w-0 font-sans text-[length:calc(14*var(--m))] font-semibold leading-[1.3] tracking-[-0.04em] whitespace-normal min-[1024px]:text-[length:calc(21*var(--u))] min-[1920px]:text-[23.1px]">
               UPCOMING EXHIBITION
             </p>
-            <div className="flex shrink-0 flex-col gap-[calc(12*var(--m))] text-[length:calc(12*var(--m))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
+            <div className="flex flex-1 flex-col gap-[calc(12*var(--m))] min-[1024px]:flex-none text-[length:calc(12*var(--m))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
               <div className="flex flex-col gap-[calc(2*var(--m))] min-[1024px]:gap-[calc(4*var(--u))] min-[1920px]:gap-[4.4px]">
                 <p className="font-sans">{cohort}th Graduation Exhibition</p>
                 <p className="font-sans font-semibold min-[1024px]:text-[length:max(12px,calc(16*var(--u)))] min-[1920px]:text-[17.6px]">
@@ -192,7 +193,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
               </div>
               {/* 연도별 키컬러(info.json keyColor) 글자 + 두꺼운 밑줄, hover 시 키컬러로 채움.
                   글자와 화살표 사이는 1em으로 고정 (1열·2열 레이아웃 모두 같은 비율).
-                  514 미만(스마트폰)은 "ON-LINE"을 빼고 버튼도 글자 폭만큼만 */}
+                  버튼은 오른쪽 열 폭(콘텐츠 끝)까지, 화살표는 오른쪽 끝. 514 미만(스마트폰)은 "ON-LINE"을 뺌 */}
               <a
                 href={latest.href}
                 style={
@@ -201,7 +202,7 @@ export default function Phase1Hero({ exhibitions }: Props) {
                     "--on-key": onKeyColor(latest.keyColor),
                   } as React.CSSProperties
                 }
-                className="group flex w-full max-[514px]:w-fit items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.55em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1024px]:text-[length:max(12px,calc(17*var(--u)))] min-[1920px]:text-[18.7px]"
+                className="group flex w-full items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.55em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1024px]:text-[length:max(12px,calc(17*var(--u)))] min-[1920px]:text-[18.7px]"
               >
                 <span>
                   VISIT {latest.year} <span className="max-[514px]:hidden">ON-LINE </span>EXHIBITION
