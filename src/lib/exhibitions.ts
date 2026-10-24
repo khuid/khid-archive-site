@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { createHash } from "crypto";
 
 export type Exhibition = {
   year: number;
@@ -71,4 +72,18 @@ export function getExhibitions(): Exhibition[] {
 
 export function getLatestExhibition(): Exhibition | undefined {
   return getExhibitions()[0];
+}
+
+/** 링크 미리보기 이미지 크기(og/route.tsx) */
+export const LINK_PREVIEW_SIZE = { width: 1200, height: 630 };
+
+/**
+ * 링크 미리보기 이미지 주소에 붙일 버전값. 최신 초대장 파일 내용이 바뀌면 값도 바뀌어서
+ * 카카오톡·슬랙 등이 예전 이미지를 캐시에서 계속 보여주는 걸 막음
+ */
+export function getLinkPreviewVersion(): string {
+  const src = getLatestExhibition()?.invitationSrc;
+  if (!src) return "none";
+  const file = fs.readFileSync(path.join(process.cwd(), "public", src));
+  return createHash("sha1").update(file).digest("hex").slice(0, 12);
 }
