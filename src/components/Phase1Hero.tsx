@@ -183,11 +183,11 @@ export default function Phase1Hero({ exhibitions }: Props) {
           <div className="flex items-start gap-x-[22px] whitespace-nowrap max-[350px]:gap-x-5 min-[514px]:gap-x-[18px] min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
             {/* 514 미만(스마트폰)은 줄바꿈을 직접 넣어 두 줄(UPCOMING / EXHIBITION), 514~는 한 줄 —
                 저절로 꺾이게 두면 글자 상자가 넓게 남아 오른쪽 열과 간격이 벌어짐 */}
-            <p className="min-w-0 font-sans text-[length:calc(14*var(--m))] font-semibold leading-[1.3] tracking-[-0.04em] whitespace-normal min-[1024px]:text-[length:calc(21*var(--u))] min-[1920px]:text-[23.1px]">
+            <p className="min-w-0 max-[514px]:shrink-0 font-sans text-[length:calc(14*var(--m))] font-semibold leading-[1.3] tracking-[-0.04em] whitespace-normal min-[1024px]:text-[length:calc(21*var(--u))] min-[1920px]:text-[23.1px]">
               UPCOMING <br className="hidden max-[514px]:inline" />
               EXHIBITION
             </p>
-            <div className="flex flex-1 flex-col gap-[calc(12*var(--m))] min-[1024px]:flex-none text-[length:calc(12*var(--m))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
+            <div className="flex min-w-0 flex-1 flex-col gap-[calc(12*var(--m))] min-[1024px]:flex-none text-[length:calc(12*var(--m))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
               <div className="flex flex-col gap-[calc(2*var(--m))] min-[1024px]:gap-[calc(4*var(--u))] min-[1920px]:gap-[4.4px]">
                 <p className="font-sans">{cohort}th Graduation Exhibition</p>
                 <p className="font-sans font-semibold min-[1024px]:text-[length:max(12px,calc(16*var(--u)))] min-[1920px]:text-[17.6px]">
@@ -196,7 +196,8 @@ export default function Phase1Hero({ exhibitions }: Props) {
               </div>
               {/* 연도별 키컬러(info.json keyColor) 글자 + 두꺼운 밑줄, hover 시 키컬러로 채움.
                   글자와 화살표 사이는 1em으로 고정 (1열·2열 레이아웃 모두 같은 비율).
-                  버튼은 오른쪽 열 폭(콘텐츠 끝)까지, 화살표는 오른쪽 끝.
+                  514~는 버튼이 오른쪽 열 폭(콘텐츠 끝)까지, 화살표는 오른쪽 끝.
+                  514 미만은 글자–화살표 간격 최대 28(빈 칸 span), 오른쪽 열이 좁으면 1em까지 줄어듦 — 버튼은 그만큼만.
                   340 미만은 "ON-LINE"까지 넣으면 오른쪽 열이 넓어져 UPCOMING과 겹치므로 뺌 */}
               <a
                 href={latest.href}
@@ -206,11 +207,12 @@ export default function Phase1Hero({ exhibitions }: Props) {
                     "--on-key": onKeyColor(latest.keyColor),
                   } as React.CSSProperties
                 }
-                className="group flex w-full items-center justify-between gap-[1em] border-b-[3px] border-(--key) px-[0.55em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1024px]:text-[length:max(12px,calc(17*var(--u)))] min-[1920px]:text-[18.7px]"
+                className="group flex w-full items-center justify-between gap-[1em] max-[514px]:w-fit max-[514px]:max-w-full max-[514px]:gap-0 border-b-[3px] border-(--key) px-[0.55em] py-[0.25em] font-sans font-semibold text-(--key) transition-colors duration-200 hover:bg-(--key) hover:text-(--on-key) min-[1024px]:text-[length:max(12px,calc(17*var(--u)))] min-[1920px]:text-[18.7px]"
               >
                 <span>
                   VISIT {latest.year} <span className="max-[340px]:hidden">ON-LINE </span>EXHIBITION
                 </span>
+                <span aria-hidden="true" className="hidden max-[514px]:block max-[514px]:min-w-[1em] max-[514px]:w-[28px] max-[514px]:shrink" />
                 <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">
                   →
                 </span>
