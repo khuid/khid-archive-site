@@ -33,11 +33,15 @@ const SCALE =
 // 범위 밖이면 거의 다 보이거나 아예 안 보여서 넘길 수 있다는 게 안 드러남
 const PEEK_MIN = 0.1;
 const PEEK_MAX = 0.75;
-const PEEK_TARGET = 0.3; // 범위 안으로 못 맞출 때 가능한 한 가까이 갈 값
-// 간격은 기본값에서 16px 좁히는 것(최소 0)부터 3배까지, 포스터는 기본 크기의 90%까지만 줄임(키우지는 않음)
+// 간격은 기본값에서 16px 좁히는 것(최소 0)부터 1.5배까지. 넓게 벌리면 포스터 사이가 휑해 보여서 그 대신 포스터를 키움
 const GAP_SHRINK = 16;
-const GAP_GROW = 3;
+const GAP_GROW = 1.5;
+// 포스터 크기를 건드리기 전에 간격만 먼저 바꿔 보는 범위(px)
+const GAP_NUDGE = 8;
+// 포스터 배율 한도: 데스크탑은 ±10%. 모바일·태블릿(~1023)은 한 장 더 보이게 줄이기만, 최대 15%
+const MAX_FIT = 1.1;
 const MIN_FIT = 0.9;
+const MIN_FIT_NARROW = 0.85;
 const FIT_STEP = 0.005;
 // 포스터 원본 비율(가로/세로, A판 ≈ 1/√2). 카드 안에서 포스터 그림이 차지하는 폭을 구하는 데 씀
 const POSTER_ASPECT = 0.707;
@@ -45,9 +49,11 @@ const POSTER_ASPECT = 0.707;
 /**
  * 가로 목록이 넘길 수 있다는 걸 알 수 있게, 오른쪽 끝 포스터가 일부 잘려 보이도록 간격(--gap)과 카드 배율(--fit)을 계산.
  * 1) 기본 크기·간격으로 이미 적당히 잘려 보이거나 전부 한 화면에 들어오면(넘길 게 없으면) 그대로
- * 2) 아니면 포스터 크기는 그대로 두고 간격만 조절(기본 간격에서 가장 덜 바뀌는 값)
- * 3) 간격만으로 안 되면 포스터를 조금씩(최대 10%) 줄이면서 다시 간격을 찾음
- * 4) 그래도 안 되면 90% 크기에서 잘린 정도가 PEEK_TARGET에 가장 가까운 간격
+ * 2) 아니면 포스터 크기는 그대로 두고 간격만 조금(±GAP_NUDGE) 조절
+ * 3) 그래도 안 되면 포스터 크기를 조금씩 바꾸면서 간격(기본값에 가장 가까운 값)을 다시 찾음
+ *    - 오른쪽 끝 포스터가 너무 조금 보이면(또는 모바일·태블릿이면) 줄여서 한 장 더 들어오게
+ *    - 너무 많이 보이면(데스크탑) 간격을 벌리는 대신 포스터를 키움
+ * 4) 한도 안에서 못 맞추면 기본 크기·간격 그대로
  */
 function useFitLayout(count: number) {
   const listRef = useRef<HTMLUListElement>(null);
@@ -56,6 +62,7 @@ function useFitLayout(count: number) {
   useLayoutEffect(() => {
     const list = listRef.current;
     if (!list) return;
+    const desktop = window.matchMedia("(min-width: 1024px)");
     const measure = () => {
       const style = getComputedStyle(list);
       const w0 = parseFloat(style.getPropertyValue("--w0"));
@@ -74,13 +81,26 @@ function useFitLayout(count: number) {
         return ((view - whole * (w + gap)) / w - inset) / posterRatio;
       };
       const fits = (peek: number | null) => peek === null || (peek >= PEEK_MIN && peek <= PEEK_MAX);
-      if (fits(peekOf(1, g0))) {
+      const basePeek = peekOf(1, g0);
+      if (fits(basePeek)) {
         setLayout(null);
         return;
       }
       const gapMin = Math.max(0, g0 - GAP_SHRINK);
-      const gapMax = g0 * GAP_GROW;
-      for (let fit = 1; fit >= MIN_FIT - 1e-9; fit -= FIT_STEP) {
+      const gapMax = Math.round(g0 * GAP_GROW);
+      for (let d = 1; d <= GAP_NUDGE; d++) {
+        for (const gap of [g0 - d, g0 + d]) {
+          if (gap >= gapMin && gap <= gapMax && fits(peekOf(1, gap))) {
+            setLayout({ fit: 1, gap });
+            return;
+          }
+        }
+      }
+      const shrink = !desktop.matches || (basePeek ?? 0) < PEEK_MIN;
+      const limit = shrink ? (desktop.matches ? MIN_FIT : MIN_FIT_NARROW) : MAX_FIT;
+      for (let step = 1; ; step++) {
+        const fit = 1 + (shrink ? -1 : 1) * step * FIT_STEP;
+        if (shrink ? fit < limit - 1e-9 : fit > limit + 1e-9) break;
         let best: number | null = null;
         for (let gap = gapMin; gap <= gapMax; gap++) {
           if (fits(peekOf(fit, gap)) && (best === null || Math.abs(gap - g0) < Math.abs(best - g0))) best = gap;
@@ -90,12 +110,7 @@ function useFitLayout(count: number) {
           return;
         }
       }
-      let best = g0;
-      for (let gap = gapMin; gap <= gapMax; gap++) {
-        const off = (g: number) => Math.abs((peekOf(MIN_FIT, g) ?? PEEK_TARGET) - PEEK_TARGET);
-        if (off(gap) < off(best)) best = gap;
-      }
-      setLayout({ fit: MIN_FIT, gap: best });
+      setLayout(null);
     };
     measure();
     const observer = new ResizeObserver(measure);
