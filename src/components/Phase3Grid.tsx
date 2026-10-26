@@ -32,7 +32,7 @@ const SCALE =
 // 스크롤 첫 화면 오른쪽 끝 포스터가 이만큼(포스터 그림 폭 대비) 보이도록 맞춤.
 // 범위 밖이면 거의 다 보이거나 아예 안 보여서 넘길 수 있다는 게 안 드러남
 const PEEK_MIN = 0.1;
-const PEEK_MAX = 0.75;
+const PEEK_MAX = 0.85;
 // 간격은 기본값에서 16px 좁히는 것(최소 0)부터 1.5배까지. 넓게 벌리면 포스터 사이가 휑해 보여서 그 대신 포스터를 키움
 const GAP_SHRINK = 16;
 const GAP_GROW = 1.5;
