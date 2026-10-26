@@ -29,9 +29,9 @@ const END_PAD = "pr-[calc(24px+var(--gap,var(--g0)))]";
 const SCALE =
   "[--w0:296.8px] [--k0:0.7] min-[768px]:[--w0:360px] min-[768px]:[--k0:0.849] min-[1440px]:[--w0:424px] min-[1440px]:[--k0:1] min-[1920px]:[--w0:466px] [--k:calc(var(--k0)*var(--fit,1))]";
 
-// 스크롤 첫 화면 오른쪽 끝 카드가 이만큼(카드 폭 대비) 보이도록 맞춤.
-// 포스터가 카드 안에서 좌우로 약 7%씩 비어 있어서, 범위 밖이면 거의 다 보이거나 거의 안 보여 넘길 수 있다는 게 안 드러남
-const PEEK_MIN = 0.2;
+// 스크롤 첫 화면 오른쪽 끝 포스터가 이만큼(포스터 그림 폭 대비) 보이도록 맞춤.
+// 범위 밖이면 거의 다 보이거나 아예 안 보여서 넘길 수 있다는 게 안 드러남
+const PEEK_MIN = 0.1;
 const PEEK_MAX = 0.75;
 const PEEK_TARGET = 0.3; // 범위 안으로 못 맞출 때 가능한 한 가까이 갈 값
 // 간격은 기본값에서 16px 좁히는 것(최소 0)부터 3배까지, 포스터는 기본 크기의 90%까지만 줄임(키우지는 않음)
@@ -39,6 +39,8 @@ const GAP_SHRINK = 16;
 const GAP_GROW = 3;
 const MIN_FIT = 0.9;
 const FIT_STEP = 0.005;
+// 포스터 원본 비율(가로/세로, A판 ≈ 1/√2). 카드 안에서 포스터 그림이 차지하는 폭을 구하는 데 씀
+const POSTER_ASPECT = 0.707;
 
 /**
  * 가로 목록이 넘길 수 있다는 걸 알 수 있게, 오른쪽 끝 포스터가 일부 잘려 보이도록 간격(--gap)과 카드 배율(--fit)을 계산.
@@ -57,14 +59,22 @@ function useFitLayout(count: number) {
     const measure = () => {
       const style = getComputedStyle(list);
       const w0 = parseFloat(style.getPropertyValue("--w0"));
+      const k0 = parseFloat(style.getPropertyValue("--k0"));
       const g0 = parseFloat(style.getPropertyValue("--g0")) || 0;
       const view = list.clientWidth;
-      if (!w0 || !view) return;
-      // 한 화면에 보이는 카드 수(소수)와 오른쪽 끝 카드가 보이는 비율. 끝의 점 프레임은 빼고 포스터만 셈
-      const visible = (fit: number, gap: number) => (view + gap) / (w0 * fit + gap);
-      const peekOf = (v: number) => v - Math.floor(v);
-      const fits = (v: number) => v >= count || (peekOf(v) >= PEEK_MIN && peekOf(v) <= PEEK_MAX);
-      if (fits(visible(1, g0))) {
+      if (!w0 || !k0 || !view) return;
+      // 포스터 그림 폭(카드 폭 대비)과 카드 안 좌우 여백. 포스터 기본 높이는 520×k, 배율(fit)과 상관없이 비율은 같음
+      const posterRatio = Math.min(1, (POSTER_ASPECT * 520 * k0) / w0);
+      const inset = (1 - posterRatio) / 2;
+      // 오른쪽 끝 포스터 그림이 보이는 비율. 전부 한 화면에 들어오면 null. 끝의 점 프레임은 빼고 포스터만 셈
+      const peekOf = (fit: number, gap: number) => {
+        const w = w0 * fit;
+        const whole = Math.floor((view + gap) / (w + gap));
+        if (whole >= count) return null;
+        return ((view - whole * (w + gap)) / w - inset) / posterRatio;
+      };
+      const fits = (peek: number | null) => peek === null || (peek >= PEEK_MIN && peek <= PEEK_MAX);
+      if (fits(peekOf(1, g0))) {
         setLayout(null);
         return;
       }
@@ -73,7 +83,7 @@ function useFitLayout(count: number) {
       for (let fit = 1; fit >= MIN_FIT - 1e-9; fit -= FIT_STEP) {
         let best: number | null = null;
         for (let gap = gapMin; gap <= gapMax; gap++) {
-          if (fits(visible(fit, gap)) && (best === null || Math.abs(gap - g0) < Math.abs(best - g0))) best = gap;
+          if (fits(peekOf(fit, gap)) && (best === null || Math.abs(gap - g0) < Math.abs(best - g0))) best = gap;
         }
         if (best !== null) {
           setLayout({ fit, gap: best });
@@ -82,7 +92,7 @@ function useFitLayout(count: number) {
       }
       let best = g0;
       for (let gap = gapMin; gap <= gapMax; gap++) {
-        const off = (g: number) => Math.abs(peekOf(visible(MIN_FIT, g)) - PEEK_TARGET);
+        const off = (g: number) => Math.abs((peekOf(MIN_FIT, g) ?? PEEK_TARGET) - PEEK_TARGET);
         if (off(gap) < off(best)) best = gap;
       }
       setLayout({ fit: MIN_FIT, gap: best });
