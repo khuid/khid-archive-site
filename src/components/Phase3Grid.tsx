@@ -10,14 +10,15 @@ type Props = {
   exhibitions: Exhibition[];
 };
 
-// 카드 폭은 화면별로 다르게(--w0: 가로 스크롤에 보이는 장수 조절), 거기에 화면 폭 맞춤 배율(--fit, useFitScale)을 곱함.
+// 카드 폭은 화면별로 다르게(--w0: 가로 스크롤에 보이는 장수 조절), 거기에 화면 폭 맞춤 배율(--fit, useFitLayout)을 곱함.
 // 프레임 높이(640)와 포스터 세로값(기본 520 / 호버·선택 600)은 Figma Component 13 실측값을 아래 SCALE로 축소
 const CARD_W = "w-[calc(var(--w0)*var(--fit,1))]";
-// 카드 간격: 모바일 구조(~1023) 8px, 데스크탑 24px(1920도 1440과 동일)
-const GAP = "gap-[8px] min-[1024px]:gap-[24px]";
+// 카드 간격: 기본(--g0) 모바일 구조(~1023) 8px, 데스크탑 24px(1920도 1440과 동일).
+// 화면 폭 맞춤(useFitLayout)이 조절한 값(--gap)이 있으면 그걸 씀
+const GAP = "[--g0:8px] min-[1024px]:[--g0:24px] gap-[var(--gap,var(--g0))]";
 // 말줄임 프레임 = 좌우 24 + 점(5px×3, 간격 5 → 25) = 73.
-// 오른쪽은 프레임 여백 24 + 카드 간격(GAP: 8 / 24). 스크롤 끝에서 확실히 잡히도록 margin 대신 padding
-const END_PAD = "pr-[32px] min-[1024px]:pr-[48px]";
+// 오른쪽은 프레임 여백 24 + 카드 간격(GAP). 스크롤 끝에서 확실히 잡히도록 margin 대신 padding
+const END_PAD = "pr-[calc(24px+var(--gap,var(--g0)))]";
 // 600/520 = 1.1538...
 // 데스크탑 Component13(424×640) 기준 수치를 카드 폭 비율(--k)로 축소해서 씀.
 // Figma 모바일(Component 14~16): 296.8×448 = 정확히 0.7배 → 포스터 기본 top 28/높이 364,
@@ -32,15 +33,23 @@ const SCALE =
 // 포스터가 카드 안에서 좌우로 약 7%씩 비어 있어서, 범위 밖이면 거의 다 보이거나 거의 안 보여 넘길 수 있다는 게 안 드러남
 const PEEK_MIN = 0.2;
 const PEEK_MAX = 0.75;
-const PEEK_TARGET = 0.3;
+const PEEK_TARGET = 0.3; // 범위 안으로 못 맞출 때 가능한 한 가까이 갈 값
+// 간격은 기본값에서 16px 좁히는 것(최소 0)부터 3배까지, 포스터는 기본 크기의 90%까지만 줄임(키우지는 않음)
+const GAP_SHRINK = 16;
+const GAP_GROW = 3;
+const MIN_FIT = 0.9;
+const FIT_STEP = 0.005;
 
 /**
- * 가로 목록이 넘길 수 있다는 걸 알 수 있게, 오른쪽 끝 포스터가 항상 일부 잘려 보이도록 카드 맞춤 배율(--fit)을 계산.
- * 기본 배율로 이미 적당히 잘려 보이면 그대로 두고, 전부 한 화면에 들어오면(넘길 게 없으면) 손대지 않음
+ * 가로 목록이 넘길 수 있다는 걸 알 수 있게, 오른쪽 끝 포스터가 일부 잘려 보이도록 간격(--gap)과 카드 배율(--fit)을 계산.
+ * 1) 기본 크기·간격으로 이미 적당히 잘려 보이거나 전부 한 화면에 들어오면(넘길 게 없으면) 그대로
+ * 2) 아니면 포스터 크기는 그대로 두고 간격만 조절(기본 간격에서 가장 덜 바뀌는 값)
+ * 3) 간격만으로 안 되면 포스터를 조금씩(최대 10%) 줄이면서 다시 간격을 찾음
+ * 4) 그래도 안 되면 90% 크기에서 잘린 정도가 PEEK_TARGET에 가장 가까운 간격
  */
-function useFitScale(count: number) {
+function useFitLayout(count: number) {
   const listRef = useRef<HTMLUListElement>(null);
-  const [fit, setFit] = useState<number | null>(null);
+  const [layout, setLayout] = useState<{ fit: number; gap: number } | null>(null);
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -48,20 +57,35 @@ function useFitScale(count: number) {
     const measure = () => {
       const style = getComputedStyle(list);
       const w0 = parseFloat(style.getPropertyValue("--w0"));
-      const gap = parseFloat(style.columnGap) || 0;
+      const g0 = parseFloat(style.getPropertyValue("--g0")) || 0;
       const view = list.clientWidth;
       if (!w0 || !view) return;
-      // 한 화면에 보이는 카드 수(소수). 끝의 점 프레임은 빼고 포스터만 셈
-      const visible = (view + gap) / (w0 + gap);
-      const peek = visible - Math.floor(visible);
-      if (visible >= count || (peek >= PEEK_MIN && peek <= PEEK_MAX)) {
-        setFit(null);
+      // 한 화면에 보이는 카드 수(소수)와 오른쪽 끝 카드가 보이는 비율. 끝의 점 프레임은 빼고 포스터만 셈
+      const visible = (fit: number, gap: number) => (view + gap) / (w0 * fit + gap);
+      const peekOf = (v: number) => v - Math.floor(v);
+      const fits = (v: number) => v >= count || (peekOf(v) >= PEEK_MIN && peekOf(v) <= PEEK_MAX);
+      if (fits(visible(1, g0))) {
+        setLayout(null);
         return;
       }
-      // 기본 크기에서 가장 덜 바뀌는 쪽(조금 키우거나 조금 줄이기)으로 n장 + PEEK_TARGET장이 보이게
-      const whole = Math.max(1, Math.round(visible - PEEK_TARGET));
-      const w = (view + gap) / (whole + PEEK_TARGET) - gap;
-      setFit(w / w0);
+      const gapMin = Math.max(0, g0 - GAP_SHRINK);
+      const gapMax = g0 * GAP_GROW;
+      for (let fit = 1; fit >= MIN_FIT - 1e-9; fit -= FIT_STEP) {
+        let best: number | null = null;
+        for (let gap = gapMin; gap <= gapMax; gap++) {
+          if (fits(visible(fit, gap)) && (best === null || Math.abs(gap - g0) < Math.abs(best - g0))) best = gap;
+        }
+        if (best !== null) {
+          setLayout({ fit, gap: best });
+          return;
+        }
+      }
+      let best = g0;
+      for (let gap = gapMin; gap <= gapMax; gap++) {
+        const off = (g: number) => Math.abs(peekOf(visible(MIN_FIT, g)) - PEEK_TARGET);
+        if (off(gap) < off(best)) best = gap;
+      }
+      setLayout({ fit: MIN_FIT, gap: best });
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -69,7 +93,7 @@ function useFitScale(count: number) {
     return () => observer.disconnect();
   }, [count]);
 
-  return { listRef, fit };
+  return { listRef, layout };
 }
 
 /**
@@ -95,12 +119,12 @@ function useFitScale(count: number) {
  */
 export default function Phase3Grid({ exhibitions }: Props) {
   const [revealedYear, setRevealedYear] = useState<number | null>(null);
-  const { listRef, fit } = useFitScale(exhibitions.length);
+  const { listRef, layout } = useFitLayout(exhibitions.length);
 
   return (
     <section
       className={`px-6 py-24 min-[1024px]:px-[93px] ${SCALE}`}
-      style={fit === null ? undefined : ({ "--fit": fit } as React.CSSProperties)}
+      style={layout ? ({ "--fit": layout.fit, "--gap": `${layout.gap}px` } as React.CSSProperties) : undefined}
     >
       {/* 가로 스크롤은 유지하고 스크롤바만 숨김 (Firefox: scrollbar-width / Chrome·Safari: ::-webkit-scrollbar) */}
       <ul ref={listRef} className={`flex snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${GAP}`}>
