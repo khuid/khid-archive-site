@@ -56,6 +56,9 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
     h: window.innerHeight,
   }));
 
+  // 연도별 종이가 차지하는 가로 범위(정사각형 캔버스 대비 왼쪽·오른쪽 끝, 0~1). 재기 전에는 캔버스 전체
+  const [paperX, setPaperX] = useState<Record<number, [number, number]>>({});
+
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   // 이벤트 핸들러(키보드)에서 최신 상태를 읽기 위한 거울
   const stateRef = useRef({ phase, focus });
@@ -89,6 +92,41 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
     setFocus(null);
     setPhase("single");
   }, []);
+
+  // 초대장 PNG의 투명하지 않은 가로 범위를 재서, 겹친 카드들 사이에서 누른 종이가 그대로 선택되게 함
+  useEffect(() => {
+    let cancelled = false;
+    for (const ex of exhibitions) {
+      const src = ex.invitationPlainSrc ?? ex.invitationSrc;
+      if (!src) continue;
+      const img = new window.Image();
+      img.onload = () => {
+        const n = 200;
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = n;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx || cancelled) return;
+        ctx.drawImage(img, 0, 0, n, n);
+        const { data } = ctx.getImageData(0, 0, n, n);
+        let left = n;
+        let right = -1;
+        for (let y = 0; y < n; y++) {
+          for (let x = 0; x < n; x++) {
+            if (data[(y * n + x) * 4 + 3] > 16) {
+              if (x < left) left = x;
+              if (x > right) right = x;
+            }
+          }
+        }
+        if (right < left) return;
+        setPaperX((prev) => ({ ...prev, [ex.year]: [left / n, (right + 1) / n] }));
+      };
+      img.src = src;
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [exhibitions]);
 
   // 열리자마자 더미 자리에서 한 줄로 펼침 (첫 프레임은 더미 자리로 그려야 모션이 보임)
   useEffect(() => {
@@ -271,13 +309,21 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
       {cards.map((ex, i) => {
         // 테이프·클립 같은 사물은 히어로 더미 자리에서만 보여주고, 넘겨보기(한 줄·한 장)에서는 종이만 보여줌
         const showFull = !ex.invitationPlainSrc || phase === "enter" || phase === "exit";
+        // 누르는 영역: 위아래는 캔버스 전체, 좌우는 종이 끝까지만
+        const [paperLeft, paperRight] = paperX[ex.year] ?? [0, 1];
         return (
           <div
             key={ex.year}
-            data-card={i}
-            className="absolute top-1/2 left-1/2 cursor-pointer will-change-transform"
+            className="pointer-events-none absolute top-1/2 left-1/2 will-change-transform"
             style={{ width: size, height: size, transition, ...cardStyle(i) }}
           >
+            <div
+              data-card={i}
+              className={`absolute inset-y-0 cursor-pointer ${
+                phase === "single" && i !== selected ? "pointer-events-none" : "pointer-events-auto"
+              }`}
+              style={{ left: `${paperLeft * 100}%`, right: `${(1 - paperRight) * 100}%` }}
+            />
             {ex.invitationSrc ? (
               <>
                 {ex.invitationPlainSrc && (
