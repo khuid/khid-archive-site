@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import type React from "react";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/exhibitions";
 import MoreDots from "./MoreDots";
@@ -9,10 +10,9 @@ type Props = {
   exhibitions: Exhibition[];
 };
 
-// 카드 폭은 화면별로 다르게(가로 스크롤에 보이는 장수 조절). 프레임 높이(640)와
-// 포스터 세로값(기본 520 / 호버·선택 600)은 Figma Component 13 실측값을 아래 SCALE로 축소
-const CARD_W =
-  "w-[296.8px] min-[768px]:w-[360px] min-[1440px]:w-[424px] min-[1920px]:w-[466px]";
+// 카드 폭은 화면별로 다르게(--w0: 가로 스크롤에 보이는 장수 조절), 거기에 화면 폭 맞춤 배율(--fit, useFitScale)을 곱함.
+// 프레임 높이(640)와 포스터 세로값(기본 520 / 호버·선택 600)은 Figma Component 13 실측값을 아래 SCALE로 축소
+const CARD_W = "w-[calc(var(--w0)*var(--fit,1))]";
 // 카드 간격: 모바일 구조(~1023) 8px, 데스크탑 24px(1920도 1440과 동일)
 const GAP = "gap-[8px] min-[1024px]:gap-[24px]";
 // 말줄임 프레임 = 좌우 24 + 점(5px×3, 간격 5 → 25) = 73.
@@ -24,7 +24,53 @@ const END_PAD = "pr-[32px] min-[1024px]:pr-[48px]";
 // 선택 시 top 0/높이 420, VISIT은 431.2 지점(포스터 아래 11.2), 글자 14px.
 // 768~1439(카드 360)는 360/424 ≈ 0.849배, 1440~(카드 424 이상)은 1배.
 // 1024~1439도 카드가 360이라 0.849로 줄여야 포스터가 폭에 막히지 않고 가운데 기준으로 커짐
-const SCALE = "[--k:0.7] min-[768px]:[--k:0.849] min-[1440px]:[--k:1]";
+// 실제 쓰는 --k는 이 기본값(--k0)에 카드 폭과 같은 맞춤 배율(--fit)을 곱한 값
+const SCALE =
+  "[--w0:296.8px] [--k0:0.7] min-[768px]:[--w0:360px] min-[768px]:[--k0:0.849] min-[1440px]:[--w0:424px] min-[1440px]:[--k0:1] min-[1920px]:[--w0:466px] [--k:calc(var(--k0)*var(--fit,1))]";
+
+// 스크롤 첫 화면 오른쪽 끝 카드가 이만큼(카드 폭 대비) 보이도록 맞춤.
+// 포스터가 카드 안에서 좌우로 약 7%씩 비어 있어서, 범위 밖이면 거의 다 보이거나 거의 안 보여 넘길 수 있다는 게 안 드러남
+const PEEK_MIN = 0.2;
+const PEEK_MAX = 0.75;
+const PEEK_TARGET = 0.3;
+
+/**
+ * 가로 목록이 넘길 수 있다는 걸 알 수 있게, 오른쪽 끝 포스터가 항상 일부 잘려 보이도록 카드 맞춤 배율(--fit)을 계산.
+ * 기본 배율로 이미 적당히 잘려 보이면 그대로 두고, 전부 한 화면에 들어오면(넘길 게 없으면) 손대지 않음
+ */
+function useFitScale(count: number) {
+  const listRef = useRef<HTMLUListElement>(null);
+  const [fit, setFit] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const measure = () => {
+      const style = getComputedStyle(list);
+      const w0 = parseFloat(style.getPropertyValue("--w0"));
+      const gap = parseFloat(style.columnGap) || 0;
+      const view = list.clientWidth;
+      if (!w0 || !view) return;
+      // 한 화면에 보이는 카드 수(소수). 끝의 점 프레임은 빼고 포스터만 셈
+      const visible = (view + gap) / (w0 + gap);
+      const peek = visible - Math.floor(visible);
+      if (visible >= count || (peek >= PEEK_MIN && peek <= PEEK_MAX)) {
+        setFit(null);
+        return;
+      }
+      // 기본 크기에서 가장 덜 바뀌는 쪽(조금 키우거나 조금 줄이기)으로 n장 + PEEK_TARGET장이 보이게
+      const whole = Math.max(1, Math.round(visible - PEEK_TARGET));
+      const w = (view + gap) / (whole + PEEK_TARGET) - gap;
+      setFit(w / w0);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [count]);
+
+  return { listRef, fit };
+}
 
 /**
  * Phase 3 — 포스터 그리드(가로 스크롤 + 스냅, 카드 간격 모바일 8px / 데스크탑 24px).
@@ -49,11 +95,15 @@ const SCALE = "[--k:0.7] min-[768px]:[--k:0.849] min-[1440px]:[--k:1]";
  */
 export default function Phase3Grid({ exhibitions }: Props) {
   const [revealedYear, setRevealedYear] = useState<number | null>(null);
+  const { listRef, fit } = useFitScale(exhibitions.length);
 
   return (
-    <section className={`px-6 py-24 min-[1024px]:px-[93px] ${SCALE}`}>
+    <section
+      className={`px-6 py-24 min-[1024px]:px-[93px] ${SCALE}`}
+      style={fit === null ? undefined : ({ "--fit": fit } as React.CSSProperties)}
+    >
       {/* 가로 스크롤은 유지하고 스크롤바만 숨김 (Firefox: scrollbar-width / Chrome·Safari: ::-webkit-scrollbar) */}
-      <ul className={`flex snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${GAP}`}>
+      <ul ref={listRef} className={`flex snap-x snap-mandatory overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${GAP}`}>
         {exhibitions.map((ex) => {
           const isRevealed = revealedYear === ex.year;
           // 온라인 전시 주소(href)가 있는 연도만 VISIT 링크를 보여줌
@@ -83,7 +133,7 @@ export default function Phase3Grid({ exhibitions }: Props) {
                         src={ex.posterSrc}
                         alt={`${ex.year} ${ex.titleKo} 포스터`}
                         fill
-                        sizes="(min-width: 1920px) 466px, (min-width: 1440px) 424px, (min-width: 768px) 360px, 297px"
+                        sizes="(min-width: 1920px) 520px, (min-width: 1440px) 480px, (min-width: 768px) 420px, 340px"
                         className="object-contain object-top shadow-[0px_0px_50px_0px_rgba(0,0,0,0.05)]"
                       />
                     ) : (
