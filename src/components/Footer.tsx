@@ -13,6 +13,7 @@ export default function Footer() {
         <div className="flex flex-col gap-1">
           <p>© Department of Industrial Design, Kyung Hee University. All rights reserved.</p>
           <p>All works are the property of their respective creators and may not be reproduced without permission.</p>
+          <p>This site uses Google Analytics to collect visitor statistics.</p>
         </div>
         <address className="flex flex-col gap-3 not-italic min-[1024px]:items-end min-[1024px]:text-right">
           <p>
