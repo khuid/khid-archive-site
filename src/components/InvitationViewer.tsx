@@ -364,7 +364,8 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
           className={`absolute left-1/2 -translate-x-1/2 font-display text-[16px] leading-none font-light tracking-[-0.04em] whitespace-nowrap text-foreground underline underline-offset-4 transition-opacity duration-200 min-[1024px]:text-[20px] ${
             phase === "single" && active.href ? "opacity-100 delay-100" : "pointer-events-none opacity-0"
           }`}
-          style={{ top: `calc(50% + ${singleSize / 2 - linkGap / 2 + 16}px)`, zIndex: 3000 }}
+          // 카드 칸 아래 6px (2026-11-05 16 → 6으로 살짝 올림)
+          style={{ top: `calc(50% + ${singleSize / 2 - linkGap / 2 + 6}px)`, zIndex: 3000 }}
         >
           VISIT WEB SITE
         </a>
