@@ -356,13 +356,13 @@ export default function InvitationViewer({ exhibitions, originRect, onClosed }: 
         );
       })}
 
-      {/* 카드가 정면으로 펴질 때 같이 나타남(펴지는 모션 끝무렵에 페이드인) — Phase 3 포스터의 VISIT WEB SITE와 같은 형식 */}
+      {/* 카드가 정면으로 펴질 때 같이 나타남(펴지는 0.6초 중 0.1초 뒤부터 0.2초 페이드인 → 0.3초면 다 보임, 2026-11-05 0.3초 뒤 → 0.1초 뒤로 앞당김) — Phase 3 포스터의 VISIT WEB SITE와 같은 형식 */}
       {active && (
         <a
           href={active.href}
           tabIndex={phase === "single" && active.href ? 0 : -1}
           className={`absolute left-1/2 -translate-x-1/2 font-display text-[16px] leading-none font-light tracking-[-0.04em] whitespace-nowrap text-foreground underline underline-offset-4 transition-opacity duration-200 min-[1024px]:text-[20px] ${
-            phase === "single" && active.href ? "opacity-100 delay-300" : "pointer-events-none opacity-0"
+            phase === "single" && active.href ? "opacity-100 delay-100" : "pointer-events-none opacity-0"
           }`}
           style={{ top: `calc(50% + ${singleSize / 2 - linkGap / 2 + 16}px)`, zIndex: 3000 }}
         >
