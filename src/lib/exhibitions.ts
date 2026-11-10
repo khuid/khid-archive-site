@@ -18,9 +18,13 @@ export type Exhibition = {
   /** 테이프·클립 등 사물을 뺀 종이만 있는 초대장. 넘겨보기에서 카드가 옆으로 서 있을 때 쓰임 */
   invitationPlainSrc?: string;
   movingPosterSrc?: string;
-  /** 온라인 전시 주소(info.json href). 없으면 VISIT 링크를 숨김 */
+  /** 온라인 전시 주소. 기본은 https://khid.grad.khu.ac.kr/<연도>(연도별 사이트 규칙).
+   *  info.json에 href를 적으면 그 주소, "" 이면 그해 사이트가 없는 것으로 보고 VISIT 링크를 숨김 */
   href?: string;
 };
+
+// 연도별 전시 사이트(저장소 khuid/khid-grad)는 이 도메인 뒤에 /연도를 붙이는 규칙이라 주소를 따로 받지 않음
+const YEARLY_SITE = "https://khid.grad.khu.ac.kr";
 
 const EXHIBITIONS_DIR = path.join(process.cwd(), "public", "exhibitions");
 
@@ -70,7 +74,9 @@ export function getExhibitions(): Exhibition[] {
       invitationSrc: firstExisting(dir, year, "invitation", ["png", "jpg", "jpeg"]),
       invitationPlainSrc: firstExisting(dir, year, "invitation-plain", ["png", "jpg", "jpeg"]),
       movingPosterSrc: firstExisting(dir, year, "moving-poster", ["mp4"]),
-      href: /^https?:\/\//.test(info.href ?? "") ? info.href : undefined,
+      href: info.href === undefined
+        ? `${YEARLY_SITE}/${year}`
+        : /^https?:\/\//.test(info.href) ? info.href : undefined,
     };
   });
 }
