@@ -7,7 +7,7 @@ export type Exhibition = {
   titleKo: string;
   titleEn: string;
   openingDate: string;
-  /** 전시 시작일·종료일(YYYY-MM-DD, 한국 시간). 홈 화면 안내 제목 UPCOMING/ONGOING/LATEST를 정함(exhibitionPhase.ts) */
+  /** 전시 시작·마감(YYYY-MM-DD 또는 YYYY-MM-DD HH:mm, 한국 시간). 홈 화면 안내 제목 UPCOMING/ONGOING/LATEST를 정함(exhibitionPhase.ts) */
   startDate?: string;
   endDate?: string;
   venue: string;

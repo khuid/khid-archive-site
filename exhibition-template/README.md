@@ -32,8 +32,8 @@
   "titleKo": "THIS IS NOT\nGRADUATION",
   "titleEn": "",
   "openingDate": "2027-11-11 (수) 17:30",
-  "startDate": "2027-11-11",
-  "endDate": "2027-11-16",
+  "startDate": "",
+  "endDate": "",
   "venue": "경희대학교 국제캠퍼스 예술디자인대학 2층 A&D HALL",
   "keyColor": "#1980FF",
   "href": "https://example.com/2027"
@@ -43,10 +43,13 @@
 - **타이틀**: 사이트에는 `titleEn`이 있으면 `titleEn`, 비어 있으면 `titleKo`가 표시됩니다. 둘 중 사이트에 보일 쪽에 정확한 표기를 넣어주세요.
 - **줄바꿈**: 연혁 섹션의 큰 타이틀을 두 줄로 나누고 싶은 위치에 `\n`을 넣으세요 (예: `"THIS IS NOT\nGRADUATION"`). 홈 화면의 `<타이틀>` 안내에서는 줄바꿈 없이 한 줄로 이어져 보입니다.
 - **href**: 그해 온라인 전시 사이트 주소(`https://`로 시작). 넣으면 포스터·초대장의 "VISIT WEB SITE" 링크와 홈 화면 VISIT 버튼이 이 주소로 연결됩니다. 아직 사이트가 없으면 이 줄을 지우거나 `""`로 두세요 — 그 연도는 "VISIT WEB SITE"가 눌러도 나타나지 않습니다.
-- **startDate·endDate (꼭 채우기)**: 전시 시작일·종료일을 `YYYY-MM-DD`로(한국 시간 기준, 종료일 당일 포함). 홈 화면 맨 위 안내 제목이 날짜에 따라 저절로 바뀝니다 — 다시 배포하지 않아도 됩니다.
-  - 시작일 전: `UPCOMING EXHIBITION`
-  - 시작일~종료일: `ONGOING EXHIBITION`
-  - 종료일 다음 날부터: `LATEST EXHIBITION` (다음 연도 폴더를 추가하면 그 연도 기준으로 다시 UPCOMING부터)
+- **startDate·endDate (매년 꼭 채우기)**: 그해 전시 시작·마감. **해마다 날짜와 마감 시각이 다르니 졸업준비위원회에서 확정된 값을 받아 넣으세요** (양식은 비어 있음). 한국 시간 기준.
+  - 형식: `"YYYY-MM-DD"` 또는 시각까지 `"YYYY-MM-DD HH:mm"` (24시간제). 예: 2026년 = `"startDate": "2026-11-11"`, `"endDate": "2026-11-16 20:00"`
+  - 시각을 안 쓰면 시작은 그날 0시, 마감은 그날 밤 12시(그날 하루 포함)
+  - 홈 화면 맨 위 안내 제목이 저절로 바뀝니다 — 다시 배포하지 않아도 됩니다.
+    - 시작 전: `UPCOMING EXHIBITION`
+    - 시작~마감: `ONGOING EXHIBITION`
+    - 마감 뒤: `LATEST EXHIBITION` (다음 연도 폴더를 추가하면 그 연도 기준으로 다시 UPCOMING부터)
   - 비워 두면 계속 `UPCOMING EXHIBITION`으로 나옵니다.
 - **openingDate·장소**: 기록용으로 채워주세요 (현재 화면에는 표시되지 않음).
 - 따옴표(`"`)와 쉼표(`,`)가 하나라도 빠지면 파일 전체를 못 읽습니다. 마지막 항목 뒤에는 쉼표를 넣지 마세요.
