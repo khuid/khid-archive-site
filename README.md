@@ -1,36 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KHID 졸업전시 아카이브
 
-## Getting Started
+경희대학교 산업디자인학과 졸업전시를 **해마다 한 칸씩 쌓아 두는 사이트**입니다.
+주소: **https://khid.exhibit.khu.ac.kr**
 
-First, run the development server:
+다음 기수 졸업준비위원회(졸준위)에 넘겨주는 문서입니다. **매년 할 일은 "새 연도 추가" 하나뿐**이고, 코드는 고치지 않아도 됩니다.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 1. 사이트 두 개의 구분
+
+졸업전시 웹사이트는 **서로 다른 사이트 두 개**로 되어 있습니다. 헷갈리지 않게 먼저 구분해 주세요.
+
+| | **아카이브 사이트** (이 저장소) | **연도별 전시 사이트** |
+|---|---|---|
+| 주소 | `khid.exhibit.khu.ac.kr` | `khid.grad.khu.ac.kr/2026`, `/2027` … |
+| 하는 일 | 모든 연도의 초대장·포스터·무빙포스터를 모아 보여 주는 **목록** | 그해 디자이너·작품을 보여 주는 **그해 전시 사이트** |
+| 만드는 횟수 | 한 번 만들어 둔 것을 계속 씀. 매년 **자료만 추가** | 매년 **새로 디자인하고 개발** |
+| GitHub 저장소 | `khuid/khid-archive-site` | `khuid/khid-grad` (별도 안내: 그 저장소의 README) |
+| Vercel 프로젝트 | `khid-archive-site` | 입구 `site-2026` + 연도마다 `khid-grad-YYYY` |
+
+둘은 **링크로만 연결**됩니다. 아카이브의 각 연도 칸에 있는 "VISIT" 버튼을 누르면 그해 전시 사이트로 이동합니다. 그래서 아카이브에는 그해 전시 사이트 **주소 한 줄**(`info.json`의 `href`)만 넣으면 됩니다.
+
+---
+
+## 2. 아카이브 사이트 구조 (간단히)
+
+화면은 위에서부터 세 부분입니다. 세 부분 모두 **연도 폴더에 넣은 자료를 자동으로 읽어서** 그립니다.
+
+| 화면 | 보이는 것 | 쓰는 자료 |
+|---|---|---|
+| ① 첫 화면 | 연도별 초대장이 쌓이는 더미 + 최신 전시 안내(제목, 기간 문구, VISIT 버튼). 더미를 누르면 초대장 넘겨보기 | `invitation.png`, `invitation-plain.png`, `info.json` |
+| ② 연혁 | 연도·전시 타이틀 목록 + 고른 연도의 무빙포스터 | `info.json` 타이틀, `moving-poster.mp4` (없으면 `poster`) |
+| ③ 포스터 모음 | 연도별 포스터 격자, 누르면 크게 보기 + VISIT WEB SITE | `poster.png`(또는 `.jpg`), `info.json` `href` |
+
+**핵심 규칙: `public/exhibitions/` 안의 연도 폴더 하나 = 아카이브의 한 해.**
+- 폴더를 추가하면 그해가 사이트에 자동으로 나타납니다. 코드는 건드리지 않습니다.
+- 숫자가 가장 큰 연도가 "최신 전시"가 되어 첫 화면 맨 위에 옵니다.
+
+```
+public/exhibitions/
+  2023/  2024/  2025/  2026/      ← 연도 폴더 (매년 하나씩 추가)
+exhibition-template/               ← 새 연도 폴더를 만들 때 복사할 양식 + 자세한 규격 안내
+src/                               ← 코드 (매년 고칠 일 없음)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 첫 화면 안내 문구는 날짜에 따라 저절로 바뀜
+최신 연도 `info.json`의 `startDate`(시작)와 `endDate`(마감)를 보고, 한국 시간 기준으로 바뀝니다. 다시 배포할 필요가 없습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| 시점 | 첫 화면 문구 |
+|---|---|
+| 전시 시작 전 | `UPCOMING EXHIBITION` |
+| 전시 기간 (시작 ~ 마감 시각) | `ONGOING EXHIBITION` |
+| 마감 후 (다음 연도를 추가할 때까지) | `LATEST EXHIBITION` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+예: 2026년은 `"startDate": "2026-11-11"`, `"endDate": "2026-11-16 20:00"` → 11/16 20시에 LATEST로 바뀜.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 3. 매년 할 일: 새 연도 추가
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 만들어야 하는 것 (체크리스트)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+새 연도 폴더 `public/exhibitions/YYYY/`에 넣을 것입니다. **파일 이름은 아래와 정확히 같아야 합니다** (영어 소문자, 하이픈 포함).
 
-## Deploy on Vercel
+| | 파일 이름 | 무엇 | 규격 | 누가 만듦 |
+|---|---|---|---|---|
+| ☐ | `invitation.png` | 초대장 (첫 화면 더미) | **1320×1320px 정사각형, 투명 배경 PNG**. 초대장은 캔버스 가운데에, 테이프·그림자도 캔버스 안에 | 디자인 |
+| ☐ | `invitation-plain.png` | 초대장에서 테이프·클립 같은 **사물만 끈** 종이 버전 (넘겨보기용) | `invitation.png`와 **같은 캔버스·같은 위치**, 투명 PNG 1320×1320. 사물이 없으면 안 만들어도 됨 | 디자인 |
+| ☐ | `poster.png` 또는 `poster.jpg` | 포스터 | PNG 또는 JPG | 디자인 |
+| ☐ | `moving-poster.mp4` | 무빙포스터 | **MP4 (H.264)만** 됨. `.mov`는 안 보임 → 변환 필요 (`exhibition-template/README.md` 참고). 가로:세로 467:660 칸에 꽉 차게 잘려 보임 | 디자인 |
+| ☐ | `info.json` | 타이틀·기간·키컬러·주소 | 아래 표 | 졸준위 |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`info.json`에 넣을 값 (`exhibition-template/info.json`을 복사해서 채움):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| | 항목 | 넣을 것 | 예시 (2026) |
+|---|---|---|---|
+| ☐ | `titleKo` / `titleEn` | 전시 타이틀. 사이트에는 `titleEn`이 있으면 그것, 비어 있으면 `titleKo`가 보임. 연혁에서 두 줄로 나눌 곳에 `\n` | `"THIS IS NOT\nGRADUATION"` |
+| ☐ | `startDate` | 전시 **시작일** (확정된 값) | `"2026-11-11"` |
+| ☐ | `endDate` | 전시 **마감일과 마감 시각** (확정된 값) | `"2026-11-16 20:00"` |
+| ☐ | `keyColor` | 그해 대표색. 첫 화면 VISIT 버튼 색. 검은 배경 위라 너무 어두운 색은 피함 | `"#1980FF"` |
+| ☐ | `href` | 그해 **연도별 전시 사이트 주소**. 그 사이트가 실제로 열린 뒤에 넣기. 비워 두면 VISIT 버튼이 안 보임 | `"https://khid.grad.khu.ac.kr/2026"` |
+| ☐ | `openingDate`, `venue` | 오프닝 일시·장소 (기록용, 화면에는 안 보임) | `"2026-11-11 (수) 17:30"` |
+
+- **시작일·마감일은 해마다 다릅니다.** 양식은 일부러 비워 두었으니, 지난해 값을 복사하지 말고 그해 확정된 날짜를 넣으세요.
+- 날짜 형식은 `"YYYY-MM-DD"` 또는 시각까지 `"YYYY-MM-DD HH:mm"`(24시간제)입니다. 시각을 빼면 시작은 그날 0시, 마감은 그날 밤 12시까지로 봅니다.
+- 따옴표(`"`)나 쉼표(`,`)가 하나라도 빠지면 파일 전체를 못 읽습니다. 마지막 항목 뒤에는 쉼표를 넣지 않습니다.
+
+### 순서
+
+1. **자료 준비**: 위 체크리스트의 파일 4~5개와 `info.json` 값(특히 확정된 시작일·마감 시각)을 모읍니다.
+2. **폴더 만들기**: `public/exhibitions/` 안에 연도 이름 폴더(예: `2027`)를 만들고 파일을 넣습니다. `info.json`은 `exhibition-template/info.json`을 복사해 채웁니다.
+3. **올리기**: 커밋하고 GitHub `main`에 푸시합니다. Vercel이 자동으로 배포합니다(1~2분).
+4. **확인**: `khid.exhibit.khu.ac.kr`에서 첫 화면 더미 맨 위에 새 초대장이 오는지, 연혁·포스터 모음에 새 연도가 보이는지, 첫 화면 문구가 `UPCOMING EXHIBITION`인지 봅니다.
+5. **연도별 전시 사이트가 열리면**: `info.json`의 `href`에 그 주소를 넣고 다시 푸시합니다. VISIT 버튼이 나타납니다.
+
+**언제 올리나**: 폴더를 올리는 순간 첫 화면의 "최신 전시"가 새 연도로 바뀝니다. 그 전까지는 지난해 전시가 `LATEST EXHIBITION`으로 걸려 있습니다. 초대장·포스터와 전시 날짜가 확정된 뒤, 전시 시작 전에 올리면 됩니다.
+
+### 선택: 초대장 더미 배치 다듬기
+초대장 더미의 연도별 기울기·크기·위치는 `src/lib/pile.ts`의 `PILE_LAYOUT`에 연도마다 적혀 있습니다.
+- 최신 연도는 항상 똑바로·가운데에 놓입니다. 그래서 새 연도는 값을 넣지 않아도 됩니다.
+- 새 연도가 올라오면 지난해 카드가 뒤로 가며 `PILE_LAYOUT`에 적힌 값대로 기울어집니다(2026은 −1.3°, 97%로 미리 정해 둠).
+- 값이 없는 연도는 자동으로 1~3° 번갈아 기울고 95% 크기가 됩니다.
+- 디자인을 직접 맞추고 싶으면 Figma에서 배치를 잡은 뒤 그 값을 `PILE_LAYOUT`에 옮깁니다. 이 작업은 코드를 고치는 일이니 개발 담당이 합니다.
+
+---
+
+## 4. 하지 말아야 할 것
+
+- **지난 연도 폴더를 지우거나 이름을 바꾸지 않습니다.** 아카이브에서 그해가 사라집니다.
+- **파일 이름을 바꾸지 않습니다** (`Invitation.PNG`, `poster_final.png` 등은 인식되지 않음). 에러 없이 그 자리만 비어서 놓치기 쉽습니다.
+- **`.mov` 영상을 그대로 올리지 않습니다.** MP4(H.264)로 변환합니다.
+- **도메인 설정을 바꾸지 않습니다.** `khid.exhibit.khu.ac.kr`은 학교 정보처가 DNS에 등록한 값으로 Vercel 프로젝트 `khid-archive-site`에 연결되어 있습니다. 프로젝트를 새로 만들거나 도메인을 다른 프로젝트로 옮기면 학교에 DNS 변경을 다시 요청해야 합니다.
+- 디자인·코드(`src/`)는 매년 바꾸는 대상이 아닙니다. 바꿀 필요가 생기면 아래 "개발 메모"를 보고 개발 담당이 합니다.
+
+---
+
+## 5. 계정과 배포
+
+| | |
+|---|---|
+| GitHub | 조직 `khuid`, 저장소 `khid-archive-site` (공개 저장소) |
+| Vercel | 팀 `khid`, 프로젝트 `khid-archive-site`. `main` 브랜치에 푸시하면 자동 배포 |
+| 도메인 | `khid.exhibit.khu.ac.kr` (경희대 정보처 관리 DNS → Vercel) |
+| 방문자 기록 | Google Analytics 4 (`src/components/Analytics.tsx`의 `GA_ID`), 배포된 사이트에서만 기록 |
+
+**배포가 안 될 때 가장 흔한 원인**: Vercel 무료 요금제(Hobby)는 **Vercel 계정에 연결된 GitHub 계정이 만든 커밋만 배포합니다.**
+- 다른 GitHub 계정으로 커밋하거나 GitHub 웹에서 다른 계정으로 파일을 올리면, 에러 없이 사이트가 이전 상태로 남습니다.
+- 푸시한 뒤에는 Vercel 대시보드의 Deployments에서 새 배포가 **Ready**인지 꼭 확인하세요.
+- 커밋 작성자는 저장소 폴더에서 `git config user.name`, `git config user.email`로 맞춥니다.
+
+---
+
+## 6. 개발 메모 (코드를 고칠 사람만)
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # 배포 전 확인
+```
+
+| 파일 | 내용 |
+|---|---|
+| `src/lib/exhibitions.ts` | `public/exhibitions/` 연도 폴더를 읽어 목록을 만듦 (파일 이름 규칙이 여기 있음) |
+| `src/lib/exhibitionPhase.ts` | 첫 화면 문구 UPCOMING / ONGOING / LATEST 판단 (한국 시간) |
+| `src/lib/pile.ts` | 첫 화면 초대장 더미 배치 (`PILE_LAYOUT`) |
+| `src/components/Phase1Hero.tsx` | ① 첫 화면 |
+| `src/components/InvitationViewer.tsx` | 초대장 넘겨보기 |
+| `src/components/Phase2Timeline.tsx` | ② 연혁 |
+| `src/components/Phase3Grid.tsx` | ③ 포스터 모음 |
+| `src/app/og/` | 링크 미리보기 이미지(카톡·인스타 썸네일) — 최신 연도 초대장으로 자동 생성 |
+
+- 화면은 1024px부터 데스크톱(가로 배치), 그 아래는 모바일(세로 배치)입니다. 수치는 Figma 시안(1440 / 390) 기준입니다.
+- 이 프로젝트의 Next.js는 최신 버전이라 예전과 다를 수 있습니다. 코드를 쓰기 전에 `node_modules/next/dist/docs/`의 안내를 먼저 확인하세요(`AGENTS.md`).
