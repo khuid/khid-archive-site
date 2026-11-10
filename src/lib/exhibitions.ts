@@ -7,6 +7,9 @@ export type Exhibition = {
   titleKo: string;
   titleEn: string;
   openingDate: string;
+  /** 전시 시작일·종료일(YYYY-MM-DD, 한국 시간). 홈 화면 안내 제목 UPCOMING/ONGOING/LATEST를 정함(exhibitionPhase.ts) */
+  startDate?: string;
+  endDate?: string;
   venue: string;
   /** 그해 키컬러(hex). VISIT 링크 색으로 쓰임 */
   keyColor?: string;
@@ -58,6 +61,8 @@ export function getExhibitions(): Exhibition[] {
       titleKo: info.titleKo ?? "",
       titleEn: info.titleEn ?? "",
       openingDate: info.openingDate ?? "",
+      startDate: info.startDate || undefined,
+      endDate: info.endDate || undefined,
       venue: info.venue ?? "",
       keyColor: /^#[0-9a-f]{6}$/i.test(info.keyColor ?? "") ? info.keyColor : undefined,
       posterSrc: firstExisting(dir, year, "poster", ["jpg", "jpeg", "png"]),

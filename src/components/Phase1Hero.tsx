@@ -1,25 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type React from "react";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/exhibitions";
+import { getExhibitionPhase, type ExhibitionPhase } from "@/lib/exhibitionPhase";
 import { pileTransform } from "@/lib/pile";
 import InvitationViewer from "./InvitationViewer";
 
 type Props = {
   exhibitions: Exhibition[];
+  /** 빌드(서버) 시점의 안내 제목 — 첫 화면은 이 값으로 그림 */
+  buildPhase: ExhibitionPhase;
 };
+
+const noSubscribe = () => () => {};
 
 /**
  * Phase 1 — header 아래 첫 화면.
  * 왼쪽: 연도별 초대장이 빠르게 쌓이는 인터랙션 (최신 연도가 위/가장 크게).
  * 오른쪽: KHID 타이틀 + 소개문 + 다가오는 전시 안내.
  */
-export default function Phase1Hero({ exhibitions }: Props) {
+export default function Phase1Hero({ exhibitions, buildPhase }: Props) {
   const latest = exhibitions[0];
   // 기수 = 연도 - 1991 (2026년 = 35기)
   const cohort = latest ? latest.year - 1991 : 0;
+  // 안내 제목(UPCOMING/ONGOING/LATEST)은 전시 기간에 따라 바뀜. 빌드 시점 값으로 먼저 그리고,
+  // 브라우저에서는 방문자 시각으로 다시 계산 — 빌드(배포) 뒤에 날짜가 지나도 다시 배포할 필요 없음
+  const phase = useSyncExternalStore(
+    noSubscribe,
+    () => getExhibitionPhase(latest?.startDate, latest?.endDate),
+    () => buildPhase,
+  );
   // 쌓이는 모션은 뒤(과거)부터 앞(최신) 순으로 보여주기 위해 역순으로 순회
   const stack = [...exhibitions].reverse();
   const timeline = getStackTimeline(stack.length);
@@ -181,10 +193,10 @@ export default function Phase1Hero({ exhibitions }: Props) {
           // 2열일 때 두 열 사이 간격 고정: 514~ 18(제목 한 줄), 350~513 22(제목 두 줄), 350 미만 20(두 줄).
           // 오른쪽 열은 콘텐츠 끝까지 채움
           <div className="flex items-start gap-x-[22px] whitespace-nowrap max-[350px]:gap-x-5 min-[514px]:gap-x-[18px] min-[1024px]:flex-col min-[1024px]:justify-start min-[1024px]:gap-[calc(24*var(--u))] min-[1024px]:whitespace-normal min-[1920px]:gap-[26.4px]">
-            {/* 514 미만(스마트폰)은 줄바꿈을 직접 넣어 두 줄(UPCOMING / EXHIBITION), 514~는 한 줄 —
+            {/* 514 미만(스마트폰)은 줄바꿈을 직접 넣어 두 줄(UPCOMING·ONGOING·LATEST / EXHIBITION), 514~는 한 줄 —
                 저절로 꺾이게 두면 글자 상자가 넓게 남아 오른쪽 열과 간격이 벌어짐 */}
             <p className="min-w-0 max-[514px]:shrink-0 font-sans text-[length:calc(14*var(--m))] font-semibold leading-[1.3] tracking-[-0.04em] whitespace-normal min-[1024px]:text-[length:calc(21*var(--u))] min-[1920px]:text-[23.1px]">
-              UPCOMING <br className="hidden max-[514px]:inline" />
+              {phase} <br className="hidden max-[514px]:inline" />
               EXHIBITION
             </p>
             <div className="flex min-w-0 flex-1 flex-col gap-[calc(12*var(--m))] min-[1024px]:flex-none text-[length:calc(12*var(--m))] leading-[1.3] tracking-[-0.04em] min-[1024px]:gap-[calc(12*var(--u))] min-[1024px]:text-[length:max(12px,calc(14*var(--u)))] min-[1920px]:gap-[13.2px]">
